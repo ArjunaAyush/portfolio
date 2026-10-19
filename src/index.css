@@ -1,0 +1,118 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Lenis smooth scrolling rules */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+:root {
+  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  /* Color Tokens: Royal Red (Primary Accent), Royal Gold (Secondary), Deep Navy (Tertiary) */
+  --accent-red: #e11d48;
+  --accent-red-glow: rgba(225, 29, 72, 0.45);
+  --secondary-gold: #f59e0b;
+  --secondary-gold-glow: rgba(245, 158, 11, 0.35);
+  --tertiary-navy: #0b1329;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: #060913;
+  color: #f1f5f9;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@keyframes blink {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+/* 
+  Spacious, Constant Layout (No character-linked resizing):
+  Content uses clean, stable max-widths that never warp or resize as the user scrolls.
+*/
+.site-container {
+  width: 100%;
+  max-width: 54rem; /* 864px constant max width for calm, spacious Apple layout */
+}
+
+.site-paragraph {
+  width: 100%;
+  max-width: 42rem; /* 672px constant optimal reading measure */
+}
+
+/* Glassomorphic Floating Pill with Royal Red & Gold Highlights */
+.glass-pill {
+  background: rgba(11, 19, 41, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(225, 29, 72, 0.22);
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.6), 0 0 1px 1px rgba(255, 255, 255, 0.05) inset;
+}
+
+.glass-pill:hover {
+  border-color: rgba(225, 29, 72, 0.45);
+  background: rgba(15, 26, 56, 0.85);
+}
+
+/* Royal Red & Gold Gradients */
+.text-red-gold-gradient {
+  background: linear-gradient(135deg, #fbbf24 0%, #f43f5e 55%, #e11d48 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #fef08a 0%, #fbbf24 50%, #f59e0b 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* 3D Card Hover Perspective Container */
+.perspective-container {
+  perspective: 1000px;
+}
+
+.tilt-card {
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.35s ease;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+/* Hide scrollbars for horizontal swiping containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
