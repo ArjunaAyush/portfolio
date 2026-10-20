@@ -1,11 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 
-const SENSITIVITY = 0.8;
-
 export const BackgroundVideo: React.FC = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
-  const prevXRef = useRef<number | null>(null);
   const targetTimeRef = useRef<number>(0);
   const lastSoughtTimeRef = useRef<number>(0);
   const isSeekingRef = useRef<boolean>(false);
@@ -38,69 +35,54 @@ export const BackgroundVideo: React.FC = () => {
     }
   };
 
-  // 1. Mouse & Touch Scrubbing (Gaze / Rotation)
+  // 1. Natural Gaze & Eye/Head Tracking with RAF
   useEffect(() => {
-    const applyScrubDelta = (currentX: number) => {
+    let animId: number;
+
+    const tick = () => {
       const video = videoRef.current;
-      if (!video || !Number.isFinite(video.duration) || video.duration <= 0) {
-        return;
+      if (video && Number.isFinite(video.duration) && video.duration > 0) {
+        if (!isSeekingRef.current && Math.abs(targetTimeRef.current - lastSoughtTimeRef.current) > 0.01) {
+          isSeekingRef.current = true;
+          lastSoughtTimeRef.current = targetTimeRef.current;
+          if ('fastSeek' in video && typeof (video as any).fastSeek === 'function') {
+            (video as any).fastSeek(targetTimeRef.current);
+          } else {
+            video.currentTime = targetTimeRef.current;
+          }
+        }
       }
+      animId = requestAnimationFrame(tick);
+    };
 
-      if (prevXRef.current === null) {
-        prevXRef.current = currentX;
-        return;
-      }
+    animId = requestAnimationFrame(tick);
 
-      const delta = currentX - prevXRef.current;
-      prevXRef.current = currentX;
+    const updateGazePosition = (clientX: number) => {
+      const video = videoRef.current;
+      if (!video || !Number.isFinite(video.duration) || video.duration <= 0) return;
 
-      const timeOffset = (delta / window.innerWidth) * SENSITIVITY * video.duration;
-      const clampedTime = Math.max(0, Math.min(video.duration, targetTimeRef.current + timeOffset));
-      targetTimeRef.current = clampedTime;
-
-      if (!isSeekingRef.current) {
-        isSeekingRef.current = true;
-        lastSoughtTimeRef.current = clampedTime;
-        video.currentTime = clampedTime;
-      }
+      const normX = Math.max(0, Math.min(1, clientX / window.innerWidth));
+      // Video spans from t=0 (looking left/cursor left) to t=duration (looking right/cursor right)
+      targetTimeRef.current = normX * video.duration;
     };
 
     const handleMouseMove = (e: MouseEvent) => {
-      applyScrubDelta(e.clientX);
-    };
-
-    const handleMouseLeave = () => {
-      prevXRef.current = null;
-    };
-
-    const handleTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        prevXRef.current = e.touches[0].clientX;
-      }
+      updateGazePosition(e.clientX);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches.length > 0) {
-        applyScrubDelta(e.touches[0].clientX);
+        updateGazePosition(e.touches[0].clientX);
       }
     };
 
-    const handleTouchEnd = () => {
-      prevXRef.current = null;
-    };
-
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    window.addEventListener('mouseleave', handleMouseLeave);
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('touchend', handleTouchEnd);
 
     return () => {
+      cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseleave', handleMouseLeave);
-      window.removeEventListener('touchstart', handleTouchStart);
       window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('touchend', handleTouchEnd);
     };
   }, []);
 
@@ -120,18 +102,18 @@ export const BackgroundVideo: React.FC = () => {
       const scaleDelta = isMobile ? 0.72 : isTablet ? 0.64 : 0.62;
       const scale = 1.0 - progress * scaleDelta;
 
-      // Video native resolution: 1920x1080. Non-zero alpha right edge: x=1695.
+      // Video native resolution: 1920x1080. Non-zero alpha right edge: x=1827.
       const videoWidth = 1920;
       const videoHeight = 1080;
-      const charRightNative = 1695;
-      const objectPosX = 0.70;
+      const charRightNative = 1827;
+      const objectPosX = 0.75;
 
       const coverScale = Math.max(width / videoWidth, height / videoHeight);
       const renderedVideoWidth = videoWidth * coverScale;
       const videoOffsetX = (width - renderedVideoWidth) * objectPosX;
       const charRightUnscaled = videoOffsetX + charRightNative * coverScale;
 
-      const originX = width * 0.72;
+      const originX = width * 0.75;
       const scaledRight = originX + (charRightUnscaled - originX) * scale;
 
       // Safe viewport margin: ensure the character always remains comfortably inside the viewport
@@ -213,7 +195,7 @@ export const BackgroundVideo: React.FC = () => {
         ref={containerRef}
         className="fixed inset-0 z-0 w-full h-full pointer-events-none select-none will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
         style={{
-          transformOrigin: '72% 100%',
+          transformOrigin: '75% 100%',
         }}
         aria-hidden="true"
       >
@@ -230,7 +212,7 @@ export const BackgroundVideo: React.FC = () => {
           onSeeked={handleSeeked}
           className="w-full h-full object-cover pointer-events-none select-none"
           style={{
-            objectPosition: '70% bottom',
+            objectPosition: '75% bottom',
           }}
           aria-hidden="true"
         >
