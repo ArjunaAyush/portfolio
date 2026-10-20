@@ -136,7 +136,7 @@ export const Skills: React.FC = () => {
   return (
     <section
       id="skills"
-      className="relative w-full py-28 sm:py-36 px-5 sm:px-8 md:px-12 lg:px-16 z-10"
+      className="relative w-full py-14 sm:py-20 px-5 sm:px-8 md:px-12 lg:px-16 z-10"
     >
       <div className="site-container">
         {/* Eyebrow Tag */}

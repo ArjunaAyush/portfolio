@@ -40,7 +40,7 @@ export const Hero: React.FC = () => {
   return (
     <section
       id="hero"
-      className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-center px-5 sm:px-8 md:px-12 lg:px-16 pt-28 pb-20 overflow-hidden z-[5]"
+      className="relative w-full min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-center px-5 sm:px-8 md:px-12 lg:px-16 pt-24 pb-12 sm:pt-28 sm:pb-16 overflow-hidden z-[5]"
     >
       <div className="site-container relative z-10 max-w-2xl">
         {/* Eyebrow Badge (Royal Red Accent) */}

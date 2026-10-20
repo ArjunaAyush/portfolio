@@ -153,7 +153,7 @@ export const HorizontalShowcase: React.FC = () => {
     <section
       id="showcase"
       ref={containerRef}
-      className="relative w-full py-28 sm:py-36 z-10 select-none overflow-hidden"
+      className="relative w-full py-14 sm:py-20 z-10 select-none overflow-hidden"
     >
       {/* Section Header */}
       <div className="px-5 sm:px-8 md:px-12 lg:px-16 mb-12">

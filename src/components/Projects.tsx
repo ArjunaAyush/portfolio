@@ -8,7 +8,7 @@ export const Projects: React.FC = () => {
   return (
     <section
       id="projects"
-      className="relative w-full py-28 sm:py-36 px-5 sm:px-8 md:px-12 lg:px-16 z-10"
+      className="relative w-full py-14 sm:py-20 px-5 sm:px-8 md:px-12 lg:px-16 z-10"
     >
       <div className="site-container">
         {/* Eyebrow Tag (Royal Red Accent) */}
