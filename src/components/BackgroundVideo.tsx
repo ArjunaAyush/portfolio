@@ -125,16 +125,18 @@ export const BackgroundVideo: React.FC = () => {
       // Smooth travel toward bottom-right, strictly bounded within the visible screen
       const tx = progress * maxAllowedTx;
 
-      // Keep character cleanly inside the Contact section and prevent it from overlapping or getting covered by the footer
+      // Keep character cleanly inside the Contact section and prevent it from moving into or behind the footer
       let ty = 0;
       const footerEl = document.querySelector('footer');
       if (footerEl) {
         const footerRect = footerEl.getBoundingClientRect();
-        // If footer enters the viewport (footerRect.top < height), lift the character up smoothly
-        // with extra clearance so it rests neatly above the footer border
-        const overlap = height - footerRect.top;
-        if (overlap > 0) {
-          ty = -overlap;
+        // The container is bottom-aligned (transformOrigin: '75% 100%').
+        // Its baseline sits at window.innerHeight (height).
+        // When footer's top edge scrolls into view (footerRect.top < height),
+        // push the character upward by exactly the amount the footer has entered the viewport,
+        // so the character anchors directly above the footer's top border at the bottom of Contact.
+        if (footerRect.top < height) {
+          ty = footerRect.top - height;
         }
       }
 
