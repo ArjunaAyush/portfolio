@@ -124,7 +124,19 @@ export const BackgroundVideo: React.FC = () => {
 
       // Smooth travel toward bottom-right, strictly bounded within the visible screen
       const tx = progress * maxAllowedTx;
-      const ty = 0;
+
+      // Keep character cleanly inside the Contact section and prevent it from overlapping or getting covered by the footer
+      let ty = 0;
+      const footerEl = document.querySelector('footer');
+      if (footerEl) {
+        const footerRect = footerEl.getBoundingClientRect();
+        // If footer enters the viewport (footerRect.top < height), lift the character up smoothly
+        // with extra clearance so it rests neatly above the footer border
+        const overlap = height - footerRect.top;
+        if (overlap > 0) {
+          ty = -overlap;
+        }
+      }
 
       el.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
       el.style.opacity = isMobile ? (0.42 - progress * 0.12).toFixed(3) : '1';
