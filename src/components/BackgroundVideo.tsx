@@ -169,14 +169,18 @@ export const BackgroundVideo: React.FC = () => {
       renderTransform(eased);
     };
 
-    window.addEventListener('scroll', updateScrollProgress, { passive: true });
+    // Continuously update position using requestAnimationFrame to sync with smooth scrolling engines (Lenis) and window scroll
+    let rafId: number;
+    const tickScroll = () => {
+      updateScrollProgress();
+      rafId = requestAnimationFrame(tickScroll);
+    };
+    rafId = requestAnimationFrame(tickScroll);
+
     window.addEventListener('resize', updateScrollProgress);
 
-    // Initial positioning
-    updateScrollProgress();
-
     return () => {
-      window.removeEventListener('scroll', updateScrollProgress);
+      cancelAnimationFrame(rafId);
       window.removeEventListener('resize', updateScrollProgress);
     };
   }, []);
@@ -207,7 +211,7 @@ export const BackgroundVideo: React.FC = () => {
       */}
       <div
         ref={containerRef}
-        className="fixed inset-0 z-0 w-full h-full pointer-events-none select-none will-change-transform transition-transform duration-700 ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+        className="fixed inset-0 z-0 w-full h-full pointer-events-none select-none will-change-transform"
         style={{
           transformOrigin: '75% 100%',
         }}
