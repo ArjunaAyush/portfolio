@@ -241,14 +241,14 @@ export const BackgroundVideo: React.FC = () => {
       {/* 
         2. Character Layer:
         Strictly anchored to the RIGHT third of the viewport.
-        Desktop bounds: x=1200..1850px on 1920px screen. Zero overlap with left headline/buttons.
+        Desktop bounds: x=1102..1850px on 1920px screen (~15% size increase). Zero overlap with left headline/buttons.
       */}
       <div
         ref={containerRef}
         className="fixed bottom-0 z-0 pointer-events-none select-none will-change-transform"
         style={{
           right: 'clamp(24px, 4vw, 70px)',
-          width: 'clamp(320px, 34vw, 650px)',
+          width: 'clamp(368px, 39vw, 748px)',
           aspectRatio: '1000 / 1030',
           transformOrigin: 'bottom right',
         }}
