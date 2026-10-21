@@ -1,0 +1,8 @@
+public/backup_assets
+public/backup_before_finalrender
+public/character_frames_seamless
+public/character_frames_stabilized
+public/*.html
+public/stabilized_frame_*.png
+public/character_frames/Frame*.png
+src/components/*.bak
