@@ -153,8 +153,38 @@ export const BackgroundVideo: React.FC = () => {
     };
   }, []);
 
-  // 3. Scroll-Linked Travel with Smooth Docking at Footer
+  // 3. Scroll-Linked Travel with Smooth Docking at Footer & Zoom Compensation
   useEffect(() => {
+    // Detect desktop browser zoom level reliably
+    const getZoomScaleMultiplier = (): number => {
+      // 1. VisualViewport scale (if available, e.g. pinch or browser page zoom)
+      let zoom = 1.0;
+      if (typeof window !== 'undefined') {
+        if (window.visualViewport && window.visualViewport.scale && window.visualViewport.scale !== 1) {
+          zoom = window.visualViewport.scale;
+        } else if (window.outerWidth && window.innerWidth) {
+          // In desktop Chrome/Safari/Firefox/Edge, outerWidth / innerWidth captures page zoom
+          const ratio = window.outerWidth / window.innerWidth;
+          // Normal desktop ratio is around 1.0 when not zoomed (within a 5% margin for scrollbar/window chrome)
+          if (ratio > 0.5 && ratio < 3.0) {
+            zoom = ratio;
+          }
+        }
+      }
+
+      // Requirements:
+      // 1. At 100% zoom: multiplier = 1.0
+      // 2. Below 100% zoom: do not reduce size, preserve baseline (multiplier = 1.0)
+      // 3. Above 100% zoom: progressively reduce character size:
+      //    110% zoom (1.10) -> ~10% smaller (0.90)
+      //    120% zoom (1.20) -> ~20% smaller (0.80)
+      //    130% zoom (1.30) -> ~30% smaller (0.70)
+      // Clamp multiplier so character never shrinks below 0.50
+      const zoomReduction = Math.max(0, zoom - 1.0);
+      const multiplier = Math.max(0.5, 1.0 - zoomReduction);
+      return multiplier;
+    };
+
     const renderTransform = (progress: number) => {
       const el = containerRef.current;
       if (!el) return;
@@ -164,9 +194,13 @@ export const BackgroundVideo: React.FC = () => {
       const isMobile = width < 768;
       const isTablet = width >= 768 && width < 1024;
 
-      // Scale factor reduction from 1.0 down to ~0.42 on desktop, ~0.30 on mobile
+      // Zoom compensation multiplier (applies above 100% zoom)
+      const zoomMultiplier = getZoomScaleMultiplier();
+
+      // Scale factor reduction from 1.3 down to docked size on scroll
       const scaleDelta = isMobile ? 0.70 : isTablet ? 0.62 : 0.58;
-      const scale = 1.3 - progress * scaleDelta;
+      const baseScale = 1.3 - progress * scaleDelta;
+      const scale = baseScale * zoomMultiplier;
 
       // Vertical translation to anchor above footer on scroll
       let ty = 0;
@@ -215,10 +249,16 @@ export const BackgroundVideo: React.FC = () => {
     rafId = requestAnimationFrame(tickScroll);
 
     window.addEventListener('resize', updateScrollProgress);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updateScrollProgress);
+    }
 
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', updateScrollProgress);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updateScrollProgress);
+      }
     };
   }, []);
 
