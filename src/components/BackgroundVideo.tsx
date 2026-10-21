@@ -155,31 +155,57 @@ export const BackgroundVideo: React.FC = () => {
 
   // 3. Scroll-Linked Travel with Smooth Docking at Footer & Zoom Compensation
   useEffect(() => {
-    // Detect desktop browser zoom level reliably
-    const getZoomScaleMultiplier = (): number => {
-      // 1. VisualViewport scale (if available, e.g. pinch or browser page zoom)
-      let zoom = 1.0;
-      if (typeof window !== 'undefined') {
-        if (window.visualViewport && window.visualViewport.scale && window.visualViewport.scale !== 1) {
-          zoom = window.visualViewport.scale;
-        } else if (window.outerWidth && window.innerWidth) {
-          // In desktop Chrome/Safari/Firefox/Edge, outerWidth / innerWidth captures page zoom
-          const ratio = window.outerWidth / window.innerWidth;
-          // Normal desktop ratio is around 1.0 when not zoomed (within a 5% margin for scrollbar/window chrome)
-          if (ratio > 0.5 && ratio < 3.0) {
-            zoom = ratio;
+    // Detect desktop browser zoom level reliably across Chrome, Safari, Firefox & Edge
+    const getZoomFactor = (): number => {
+      if (typeof window === 'undefined') return 1.0;
+
+      // 1. VisualViewport scale (pinch-zoom or mobile page zoom)
+      if (window.visualViewport && window.visualViewport.scale && window.visualViewport.scale !== 1) {
+        return window.visualViewport.scale;
+      }
+
+      // 2. Desktop browser page zoom (Ctrl/Cmd +/-)
+      // When zooming on desktop, the browser changes window.devicePixelRatio proportionally
+      // to the native display DPR (1.0 for standard 1080p/1440p monitors, 2.0 for Retina/4K displays).
+      const currentDpr = window.devicePixelRatio || 1.0;
+
+      // Check session calibration
+      try {
+        const saved = sessionStorage.getItem('portfolio_baseline_dpr');
+        if (saved) {
+          const baseline = parseFloat(saved);
+          if (baseline > 0) {
+            const z = currentDpr / baseline;
+            if (z >= 0.5 && z <= 3.0) return z;
           }
         }
+      } catch {
+        // sessionStorage unavailable
       }
+
+      // Deduce native display baseline:
+      // For desktop displays, standard native DPR is 2.0 (macOS Retina, 4K 200%) or 1.0 (standard 1080p/1440p).
+      // On 2.0 Retina screens, standard zoom levels produce:
+      // 80% -> 1.6, 100% -> 2.0, 110% -> 2.2, 120% -> 2.4, 130% -> 2.6.
+      // On 1.0 displays, standard zoom levels produce:
+      // 80% -> 0.8, 100% -> 1.0, 110% -> 1.1, 120% -> 1.2, 130% -> 1.3.
+      let native = 1.0;
+      if (currentDpr >= 1.5) {
+        native = 2.0;
+      }
+      return currentDpr / native;
+    };
+
+    const getZoomScaleMultiplier = (): number => {
+      const zoom = getZoomFactor();
 
       // Requirements:
       // 1. At 100% zoom: multiplier = 1.0
-      // 2. Below 100% zoom: do not reduce size, preserve baseline (multiplier = 1.0)
+      // 2. Below 100% zoom (e.g. 80%): preserve baseline character sizing (multiplier = 1.0)
       // 3. Above 100% zoom: progressively reduce character size:
       //    110% zoom (1.10) -> ~10% smaller (0.90)
       //    120% zoom (1.20) -> ~20% smaller (0.80)
       //    130% zoom (1.30) -> ~30% smaller (0.70)
-      // Clamp multiplier so character never shrinks below 0.50
       const zoomReduction = Math.max(0, zoom - 1.0);
       const multiplier = Math.max(0.5, 1.0 - zoomReduction);
       return multiplier;
@@ -252,12 +278,26 @@ export const BackgroundVideo: React.FC = () => {
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', updateScrollProgress);
     }
+    // Also listen to resolution media query changes (triggers on desktop browser zoom Cmd +/-)
+    let mq: MediaQueryList | null = null;
+    const updateMq = () => {
+      updateScrollProgress();
+      if (typeof window !== 'undefined' && window.matchMedia) {
+        if (mq) mq.removeEventListener('change', updateMq);
+        mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
+        mq.addEventListener('change', updateMq);
+      }
+    };
+    updateMq();
 
     return () => {
       cancelAnimationFrame(rafId);
       window.removeEventListener('resize', updateScrollProgress);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', updateScrollProgress);
+      }
+      if (mq) {
+        mq.removeEventListener('change', updateMq);
       }
     };
   }, []);
