@@ -186,11 +186,11 @@ export const BackgroundVideo: React.FC = () => {
       // Deduce native display baseline:
       // For desktop displays, standard native DPR is 2.0 (macOS Retina, 4K 200%) or 1.0 (standard 1080p/1440p).
       // On 2.0 Retina screens, standard zoom levels produce:
-      // 80% -> 1.6, 100% -> 2.0, 110% -> 2.2, 120% -> 2.4, 130% -> 2.6.
+      // 70% -> 1.4, 80% -> 1.6, 90% -> 1.8, 100% -> 2.0, 110% -> 2.2, 120% -> 2.4, 130% -> 2.6.
       // On 1.0 displays, standard zoom levels produce:
-      // 80% -> 0.8, 100% -> 1.0, 110% -> 1.1, 120% -> 1.2, 130% -> 1.3.
+      // 70% -> 0.7, 80% -> 0.8, 90% -> 0.9, 100% -> 1.0, 110% -> 1.1, 120% -> 1.2, 130% -> 1.3.
       let native = 1.0;
-      if (currentDpr >= 1.5) {
+      if (currentDpr >= 1.35) {
         native = 2.0;
       }
       return currentDpr / native;
@@ -200,13 +200,19 @@ export const BackgroundVideo: React.FC = () => {
       const zoom = getZoomFactor();
 
       // Requirements:
-      // 1. At 100% zoom: multiplier = 1.0
-      // 2. Below 100% zoom (e.g. 80%): preserve baseline character sizing (multiplier = 1.0)
-      // 3. Above 100% zoom: progressively reduce character size:
+      // 1. At 100% zoom: multiplier = 1.0 (baseline)
+      // 2. Below 100% zoom (70%, 80%, 90%): keep the character at the exact same baseline size
+      //    as at 100% (compensate for browser viewport scaling so it does not shrink)
+      // 3. Above 100% zoom (110%, 120%, 130%): progressively reduce character size exactly as before:
       //    110% zoom (1.10) -> ~10% smaller (0.90)
       //    120% zoom (1.20) -> ~20% smaller (0.80)
       //    130% zoom (1.30) -> ~30% smaller (0.70)
-      const zoomReduction = Math.max(0, zoom - 1.0);
+      if (zoom <= 1.0) {
+        // Compensate browser zoom-out so the rendered character maintains the 100% baseline size
+        return Math.min(2.0, 1.0 / Math.max(0.5, zoom));
+      }
+
+      const zoomReduction = zoom - 1.0;
       const multiplier = Math.max(0.5, 1.0 - zoomReduction);
       return multiplier;
     };
