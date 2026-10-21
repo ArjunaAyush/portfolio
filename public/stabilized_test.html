@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<style>
+body { background: #060913; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+.stage { width: 500px; height: 600px; position: relative; border: 1px solid #1e293b; background: #0b1329; border-radius: 12px; }
+img { width: 100%; height: 100%; object-fit: contain; object-position: center bottom; position: absolute; inset: 0; display: none; }
+img.active { display: block; }
+</style>
+</head>
+<body>
+<h2>Torso-Stabilized Clean Frame Scrubbing (ZERO GHOSTING)</h2>
+<div class='stage' id='stage'>
+  <img id='f1' src='/stabilized_frame_1.png' class='active'>
+  <img id='f2' src='/stabilized_frame_2.png'>
+  <img id='f3' src='/stabilized_frame_3.png'>
+  <img id='f4' src='/stabilized_frame_4.png'>
+  <img id='f5' src='/stabilized_frame_5.png'>
+</div>
+<p id='info'>Frame 1</p>
+<script>
+const imgs = [document.getElementById('f1'), document.getElementById('f2'), document.getElementById('f3'), document.getElementById('f4'), document.getElementById('f5')];
+const info = document.getElementById('info');
+let curr = 0;
+
+window.addEventListener('mousemove', (e) => {
+  const norm = Math.max(0, Math.min(1, e.clientX / window.innerWidth));
+  const idx = Math.min(4, Math.floor(norm * 5));
+  if (idx !== curr) {
+    imgs[curr].classList.remove('active');
+    imgs[idx].classList.add('active');
+    curr = idx;
+    info.textContent = 'Frame ' + (idx + 1);
+  }
+});
+</script>
+</body>
+</html>

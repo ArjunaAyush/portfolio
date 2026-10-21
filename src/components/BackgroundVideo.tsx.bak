@@ -1,0 +1,252 @@
+import React, { useEffect, useRef } from 'react';
+
+const FRAME_PATHS = [
+  '/character_frames/Frame1.png',
+  '/character_frames/Frame2.png',
+  '/character_frames/Frame3.png',
+  '/character_frames/Frame4.png',
+  '/character_frames/Frame5.png',
+];
+
+export const BackgroundVideo: React.FC = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const imgRefs = useRef<(HTMLImageElement | null)[]>([]);
+
+  // Continuous physics-based cursor progress controller
+  const targetProgressRef = useRef<number>(0.5); // 0.0 (far left) to 1.0 (far right)
+  const currentProgressRef = useRef<number>(0.5);
+  const lastTimeRef = useRef<number>(0);
+  const activeIndexRef = useRef<number>(2);
+
+  // 1. Preload and hardware-decode all 5 frames immediately
+  useEffect(() => {
+    FRAME_PATHS.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+      if ('decode' in img) {
+        img.decode().then(() => {
+          // Frame ready and decoded in GPU memory
+        }).catch(() => {});
+      }
+    });
+  }, []);
+
+  // 2. High-performance, Zero-React-Rerender Animation Controller (60/120 FPS RAF)
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReducedMotion) {
+      imgRefs.current.forEach((img, i) => {
+        if (img) img.style.display = i === 2 ? 'block' : 'none';
+      });
+      return;
+    }
+
+    let animId: number;
+
+    const tick = (timestamp: number) => {
+      if (!lastTimeRef.current) lastTimeRef.current = timestamp;
+      const dt = Math.min(0.064, (timestamp - lastTimeRef.current) / 1000); // delta time in seconds, clamped
+      lastTimeRef.current = timestamp;
+
+      // Exponential time-based continuous smoothing: lerp rate = 1 - exp(-speed * dt)
+      // speed = 14.0 provides instant responsiveness without latency or jitter
+      const lerpFactor = 1 - Math.exp(-14.0 * dt);
+      const diff = targetProgressRef.current - currentProgressRef.current;
+      currentProgressRef.current += diff * lerpFactor;
+
+      // Map progress (0.00 to 1.00) strictly to one of the 5 discrete poses:
+      // [0.00, 0.20) -> Frame 1 (turned left)
+      // [0.20, 0.40) -> Frame 2 (intermediate left)
+      // [0.40, 0.60) -> Frame 3 (center neutral)
+      // [0.60, 0.80) -> Frame 4 (intermediate right)
+      // [0.80, 1.00] -> Frame 5 (turned right)
+      const mappedVal = currentProgressRef.current * 4.999;
+      const targetIndex = Math.max(0, Math.min(4, Math.floor(mappedVal)));
+
+      // Direct DOM update: switch visibility directly via style.display with 0 React re-renders
+      if (targetIndex !== activeIndexRef.current) {
+        const prevEl = imgRefs.current[activeIndexRef.current];
+        const nextEl = imgRefs.current[targetIndex];
+        if (prevEl) prevEl.style.display = 'none';
+        if (nextEl) nextEl.style.display = 'block';
+        activeIndexRef.current = targetIndex;
+      }
+
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+
+    const handlePointerMove = (clientX: number) => {
+      const winW = window.innerWidth;
+      // Map horizontal cursor across the window to continuous [0.0, 1.0]
+      const normX = Math.max(0, Math.min(1, clientX / winW));
+      targetProgressRef.current = normX;
+    };
+
+    const onMouseMove = (e: MouseEvent) => {
+      handlePointerMove(e.clientX);
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        handlePointerMove(e.touches[0].clientX);
+      }
+    };
+
+    const onMouseLeave = () => {
+      // Smoothly ease back to neutral pose (Frame 3, progress = 0.5) when cursor exits window
+      targetProgressRef.current = 0.5;
+    };
+
+    window.addEventListener('mousemove', onMouseMove, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    document.addEventListener('mouseleave', onMouseLeave);
+
+    return () => {
+      cancelAnimationFrame(animId);
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('touchmove', onTouchMove);
+      document.removeEventListener('mouseleave', onMouseLeave);
+    };
+  }, []);
+
+  // 3. Scroll-Linked Character Travel with Ease-in / Ease-out Resizing
+  useEffect(() => {
+    const renderTransform = (progress: number) => {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const width = window.innerWidth;
+      const height = window.innerHeight;
+      const isMobile = width < 768;
+      const isTablet = width >= 768 && width < 1024;
+
+      // Scale factors: smooth reduction from 1.0 (hero) down to ~0.38 (desktop) and ~0.28 (mobile)
+      const scaleDelta = isMobile ? 0.72 : isTablet ? 0.64 : 0.62;
+      const scale = 1.0 - progress * scaleDelta;
+
+      // Safe viewport margin
+      const margin = isMobile ? 12 : isTablet ? 20 : 28;
+      const maxAllowedTx = Math.max(0, (isMobile ? width * 0.15 : width * 0.12) - margin * 0.2);
+      const tx = progress * maxAllowedTx;
+
+      // Boundary check with footer
+      let ty = 0;
+      const footerEl = document.querySelector('footer');
+      if (footerEl) {
+        const footerRect = footerEl.getBoundingClientRect();
+        if (footerRect.top < height) {
+          ty = footerRect.top - height;
+        }
+      }
+
+      el.style.transform = `translate3d(${tx.toFixed(2)}px, ${ty.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+      el.style.opacity = isMobile ? (0.42 - progress * 0.12).toFixed(3) : '1';
+    };
+
+    const updateScrollProgress = () => {
+      const scrollY = window.scrollY;
+      const winHeight = window.innerHeight;
+
+      const projectsEl = document.getElementById('projects');
+      let travelRange = winHeight * 1.5;
+      if (projectsEl) {
+        const rect = projectsEl.getBoundingClientRect();
+        const elementAbsoluteTop = rect.top + scrollY;
+        travelRange = Math.max(winHeight * 0.5, elementAbsoluteTop - winHeight * 0.3);
+      }
+
+      const normalized = Math.min(1, Math.max(0, scrollY / travelRange));
+
+      const eased =
+        normalized < 0.5
+          ? 4 * normalized * normalized * normalized
+          : 1 - Math.pow(-2 * normalized + 2, 3) / 2;
+
+      renderTransform(eased);
+    };
+
+    let rafId: number;
+    const tickScroll = () => {
+      updateScrollProgress();
+      rafId = requestAnimationFrame(tickScroll);
+    };
+    rafId = requestAnimationFrame(tickScroll);
+
+    window.addEventListener('resize', updateScrollProgress);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', updateScrollProgress);
+    };
+  }, []);
+
+  return (
+    <>
+      {/* 
+        1. Clean Atmospheric Canvas:
+        Deep royal navy background without any orange glow or artificial halos.
+      */}
+      <div
+        className="fixed inset-0 z-0 pointer-events-none select-none bg-[#060913] overflow-hidden"
+        style={{
+          background: `
+            radial-gradient(circle at 20% 75%, rgba(11, 19, 41, 0.85) 0%, rgba(6, 9, 19, 0.6) 45%, transparent 75%),
+            radial-gradient(circle at 50% 15%, rgba(11, 19, 41, 0.7) 0%, #060913 60%, #03060f 100%)
+          `,
+        }}
+        aria-hidden="true"
+      />
+
+      {/* 
+        2. Animated Character Layer:
+        Fixed aspect ratio container anchored firmly to right-bottom.
+        Strict single-frame rendering: exactly ONE image display:block, others display:none.
+        Direct DOM manipulation eliminates React re-renders during scrubbing.
+      */}
+      <div
+        ref={containerRef}
+        className="fixed inset-0 z-0 w-full h-full pointer-events-none select-none will-change-transform"
+        style={{
+          transformOrigin: '75% 100%',
+        }}
+        aria-hidden="true"
+      >
+        <div
+          className="absolute right-0 bottom-0 w-[95vw] sm:w-[75vw] md:w-[60vw] lg:w-[50vw] xl:w-[45vw] max-w-[850px] h-[78vh] sm:h-[82vh] md:h-[88vh] lg:h-[92vh]"
+          style={{
+            right: '2%',
+            bottom: '0',
+          }}
+        >
+          {FRAME_PATHS.map((src, idx) => (
+            <img
+              key={src}
+              ref={(el) => {
+                imgRefs.current[idx] = el;
+              }}
+              src={src}
+              alt={`Character frame ${idx + 1}`}
+              className="absolute inset-0 w-full h-full object-contain object-bottom pointer-events-none select-none"
+              style={{
+                display: idx === 2 ? 'block' : 'none',
+              }}
+              draggable={false}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Subtle ambient vignette overlay */}
+      <div
+        className="fixed inset-0 z-[1] pointer-events-none select-none opacity-20 mix-blend-overlay"
+        style={{
+          background:
+            'radial-gradient(circle at 50% 50%, transparent 60%, rgba(0,0,0,0.6) 100%)',
+        }}
+        aria-hidden="true"
+      />
+    </>
+  );
+};

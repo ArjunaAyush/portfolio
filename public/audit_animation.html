@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8'>
+<title>Character Animation 101-Frame Audit & Inspection</title>
+<style>
+body { background: #060913; color: #fff; font-family: -apple-system, sans-serif; padding: 24px; margin: 0; }
+.header { text-align: center; margin-bottom: 20px; }
+.main-stage { display: flex; justify-content: center; gap: 30px; align-items: flex-start; }
+.viewport-card { background: #0b1329; border: 1px solid #1e293b; border-radius: 12px; padding: 16px; text-align: center; }
+canvas { background: #060913; border: 1px solid #334155; border-radius: 8px; width: 420px; height: 480px; object-fit: contain; }
+.zoom-canvas { width: 280px; height: 280px; object-fit: contain; }
+.controls { margin-top: 16px; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.slider { width: 420px; }
+.btn-group { display: flex; gap: 10px; }
+button { background: #2563eb; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; }
+button:hover { background: #1d4ed8; }
+.info { font-family: monospace; font-size: 13px; color: #38bdf8; margin-top: 4px; }
+</style>
+</head>
+<body>
+<div class='header'>
+  <h2>Character Animation Frame Audit (101 Frames)</h2>
+  <p style='color: #94a3b8; font-size: 14px;'>Interactive inspection: scrub frame-by-frame or play at 30/60 FPS to detect ghosting and jumps.</p>
+</div>
+
+<div class='main-stage'>
+  <div class='viewport-card'>
+    <h3>Full Frame</h3>
+    <canvas id='fullCanvas' width='1201' height='1374'></canvas>
+    <div class='controls'>
+      <input type='range' id='scrubber' class='slider' min='0' max='100' value='50'>
+      <div class='btn-group'>
+        <button id='playBtn'>Pause</button>
+        <button id='fpsBtn'>60 FPS</button>
+        <button id='prevBtn'>&larr; Prev</button>
+        <button id='nextBtn'>Next &rarr;</button>
+      </div>
+      <div class='info' id='infoText'>Frame 51 / 101 (keyframe_Frame3.png)</div>
+    </div>
+  </div>
+
+  <div class='viewport-card'>
+    <h3>Face & Eye Zoom (Ghosting Detector)</h3>
+    <canvas id='zoomCanvas' width='400' height='400' class='zoom-canvas'></canvas>
+    <p style='color: #94a3b8; font-size: 12px; max-width: 280px; margin-top: 10px;'>
+      Scrub slowly through Frames 1 to 25 and Frames 75 to 100. Watch for double pupils, smudged jawline, or overlapping mouths.
+    </p>
+  </div>
+</div>
+
+<script>
+const manifest = ['keyframe_Frame1.png'];
+for (let i = 1; i <= 24; i++) manifest.push('Frame' + String(i).padStart(3, '0') + '.png');
+manifest.push('keyframe_Frame2.png');
+for (let i = 25; i <= 48; i++) manifest.push('Frame' + String(i).padStart(3, '0') + '.png');
+manifest.push('keyframe_Frame3.png');
+for (let i = 49; i <= 72; i++) manifest.push('Frame' + String(i).padStart(3, '0') + '.png');
+manifest.push('keyframe_Frame4.png');
+for (let i = 73; i <= 96; i++) manifest.push('Frame' + String(i).padStart(3, '0') + '.png');
+manifest.push('keyframe_Frame5.png');
+
+const fullCanvas = document.getElementById('fullCanvas');
+const fullCtx = fullCanvas.getContext('2d');
+const zoomCanvas = document.getElementById('zoomCanvas');
+const zoomCtx = zoomCanvas.getContext('2d');
+const scrubber = document.getElementById('scrubber');
+const infoText = document.getElementById('infoText');
+const playBtn = document.getElementById('playBtn');
+const fpsBtn = document.getElementById('fpsBtn');
+
+const images = [];
+let loaded = 0;
+let current = 50;
+let isPlaying = true;
+let fps = 30;
+let lastTime = 0;
+
+for (let i = 0; i < manifest.length; i++) {
+  const img = new Image();
+  img.src = '/character_frames_seamless/' + manifest[i];
+  img.onload = () => {
+    loaded++;
+    if (loaded === manifest.length) {
+      draw(current);
+      requestAnimationFrame(loop);
+    }
+  };
+  images.push(img);
+}
+
+function draw(idx) {
+  const img = images[idx];
+  if (!img || !img.complete) return;
+  fullCtx.clearRect(0, 0, fullCanvas.width, fullCanvas.height);
+  fullCtx.drawImage(img, 0, 0);
+
+  // Zoom onto face region (x: 400..800, y: 450..850)
+  zoomCtx.clearRect(0, 0, zoomCanvas.width, zoomCanvas.height);
+  zoomCtx.drawImage(img, 400, 450, 400, 400, 0, 0, zoomCanvas.width, zoomCanvas.height);
+
+  scrubber.value = idx;
+  const isKey = idx === 0 || idx === 25 || idx === 50 || idx === 75 || idx === 100;
+  infoText.innerHTML = ;
+}
+
+scrubber.addEventListener('input', (e) => {
+  isPlaying = false;
+  playBtn.textContent = 'Play';
+  current = parseInt(e.target.value);
+  draw(current);
+});
+
+playBtn.addEventListener('click', () => {
+  isPlaying = !isPlaying;
+  playBtn.textContent = isPlaying ? 'Pause' : 'Play';
+});
+
+fpsBtn.addEventListener('click', () => {
+  fps = fps === 30 ? 60 : 30;
+  fpsBtn.textContent = fps + ' FPS';
+});
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  isPlaying = false;
+  playBtn.textContent = 'Play';
+  current = Math.max(0, current - 1);
+  draw(current);
+});
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  isPlaying = false;
+  playBtn.textContent = 'Play';
+  current = Math.min(100, current + 1);
+  draw(current);
+});
+
+let dir = 1;
+function loop(time) {
+  if (isPlaying && loaded === manifest.length) {
+    if (!lastTime) lastTime = time;
+    const interval = 1000 / fps;
+    if (time - lastTime >= interval) {
+      lastTime = time;
+      current += dir;
+      if (current >= 100) { current = 100; dir = -1; }
+      if (current <= 0) { current = 0; dir = 1; }
+      draw(current);
+    }
+  }
+  requestAnimationFrame(loop);
+}
+</script>
+</body>
+</html>
