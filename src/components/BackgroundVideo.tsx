@@ -17,12 +17,32 @@ export const BackgroundVideo: React.FC = () => {
   const lastDrawnFrameRef = useRef<number>(-1);
   const lastTimeRef = useRef<number>(0);
 
+  // Helper to determine if current viewport is a normal mobile viewport (<768px)
+  const checkIsMobile = (): boolean => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768;
+  };
+
   // 1. Preload & hardware-decode all frames in parallel using ImageBitmap
   useEffect(() => {
     let cancelled = false;
+    const isMobile = checkIsMobile();
     const totalFrames = CHARACTER_FRAME_FILES.length;
     const loadedBitmaps: (ImageBitmap | HTMLImageElement)[] = new Array(totalFrames);
     let loadedCount = 0;
+
+    // Neutral / center frame index (0.5 * 95 = 48)
+    const neutralIndex = Math.floor(totalFrames / 2);
+
+    const drawFrameToCanvas = (image: ImageBitmap | HTMLImageElement) => {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d', { alpha: true });
+      if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      }
+    };
 
     const loadFrame = async (src: string, index: number) => {
       try {
@@ -30,55 +50,66 @@ export const BackgroundVideo: React.FC = () => {
         const blob = await response.blob();
         if (cancelled) return;
 
+        let frameItem: ImageBitmap | HTMLImageElement;
         if (typeof window !== 'undefined' && 'createImageBitmap' in window) {
           const bitmap = await createImageBitmap(blob);
           if (cancelled) {
             bitmap.close();
             return;
           }
-          loadedBitmaps[index] = bitmap;
+          frameItem = bitmap;
         } else {
-          // Fallback to standard Image
           const img = new Image();
           img.src = URL.createObjectURL(blob);
           await img.decode();
           if (cancelled) return;
-          loadedBitmaps[index] = img;
+          frameItem = img;
         }
 
+        loadedBitmaps[index] = frameItem;
         loadedCount++;
 
-        // Draw initial frame as soon as frame 0 is decoded
-        if (index === 0 && canvasRef.current) {
-          const canvas = canvasRef.current;
-          const ctx = canvas.getContext('2d', { alpha: true });
-          if (ctx && loadedBitmaps[0]) {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(loadedBitmaps[0], 0, 0, canvas.width, canvas.height);
-            lastDrawnFrameRef.current = 0;
-            setIsReady(true);
-          }
+        // On mobile, draw the neutral frame as static appearance
+        if (isMobile && index === neutralIndex) {
+          drawFrameToCanvas(frameItem);
+          lastDrawnFrameRef.current = neutralIndex;
+          setIsReady(true);
+        } else if (!isMobile && index === 0 && lastDrawnFrameRef.current === -1) {
+          drawFrameToCanvas(frameItem);
+          lastDrawnFrameRef.current = 0;
+          setIsReady(true);
         }
 
         if (loadedCount === totalFrames && !cancelled) {
           framesRef.current = loadedBitmaps;
           isLoadedRef.current = true;
           setIsReady(true);
+          // If on mobile and neutral frame was loaded, ensure it is drawn
+          if (isMobile && loadedBitmaps[neutralIndex]) {
+            drawFrameToCanvas(loadedBitmaps[neutralIndex]);
+            lastDrawnFrameRef.current = neutralIndex;
+          }
         }
       } catch (err) {
         console.warn(`Failed loading character frame ${index}:`, err);
       }
     };
 
-    // Load first frame immediately for instant rendering, then batch the rest
-    loadFrame(CHARACTER_FRAME_FILES[0], 0);
-    for (let i = 1; i < totalFrames; i++) {
+    // On mobile, load the neutral center frame first
+    if (isMobile) {
+      loadFrame(CHARACTER_FRAME_FILES[neutralIndex], neutralIndex);
+    } else {
+      loadFrame(CHARACTER_FRAME_FILES[0], 0);
+    }
+
+    for (let i = 0; i < totalFrames; i++) {
+      if (isMobile && i === neutralIndex) continue;
+      if (!isMobile && i === 0) continue;
       loadFrame(CHARACTER_FRAME_FILES[i], i);
     }
 
     return () => {
       cancelled = true;
-      // Close bitmaps to free GPU memory
       loadedBitmaps.forEach((item) => {
         if (item && 'close' in item && typeof item.close === 'function') {
           item.close();
@@ -87,19 +118,24 @@ export const BackgroundVideo: React.FC = () => {
     };
   }, []);
 
-  // 2. High-performance Delta-Time RAF Gaze Animation Loop
+  // 2. High-performance Delta-Time RAF Gaze Animation Loop (Desktop Only)
   useEffect(() => {
     let animId: number;
 
     const tick = (now: number) => {
+      // Completely disable frame animation on normal mobile viewports
+      if (checkIsMobile()) {
+        animId = requestAnimationFrame(tick);
+        return;
+      }
+
       if (!lastTimeRef.current) lastTimeRef.current = now;
       const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
       lastTimeRef.current = now;
 
-      // Delta-time based smooth tracking (decay rate = 18 for instant responsiveness without lag)
+      // Delta-time based smooth tracking
       const diff = targetNormXRef.current - currentNormXRef.current;
       if (Math.abs(diff) > 0.0005) {
-        // Continuous, frame-rate independent exponential smoothing
         const factor = 1 - Math.exp(-18 * dt);
         currentNormXRef.current += diff * factor;
       }
@@ -131,12 +167,15 @@ export const BackgroundVideo: React.FC = () => {
     animId = requestAnimationFrame(tick);
 
     const handlePointerMove = (e: MouseEvent) => {
+      if (checkIsMobile()) return;
       const x = e.clientX / window.innerWidth;
       const normX = Math.max(0, Math.min(1, (x - 0.4) / (0.9 - 0.2)));
       targetNormXRef.current = normX;
     };
 
     const handleTouchMove = (e: TouchEvent) => {
+      // Touch-driven head turn is disabled on mobile
+      if (checkIsMobile()) return;
       if (e.touches.length > 0) {
         const normX = Math.max(0, Math.min(1, e.touches[0].clientX / window.innerWidth));
         targetNormXRef.current = normX;
@@ -230,11 +269,19 @@ export const BackgroundVideo: React.FC = () => {
       const isMobile = width < 768;
       const isTablet = width >= 768 && width < 1024;
 
-      // Zoom compensation multiplier (applies above 100% zoom)
+      // On normal mobile viewports: keep the avatar completely static at a fixed scale
+      // It must not grow, shrink, rotate, or move with scroll, touch, or zoom calculations
+      if (isMobile) {
+        el.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
+        el.style.opacity = '0.35';
+        return;
+      }
+
+      // Zoom compensation multiplier (applies above 100% zoom on desktop)
       const zoomMultiplier = getZoomScaleMultiplier();
 
       // Scale factor reduction from 1.3 down to docked size on scroll
-      const scaleDelta = isMobile ? 0.70 : isTablet ? 0.62 : 0.58;
+      const scaleDelta = isTablet ? 0.62 : 0.58;
       const baseScale = 1.3 - progress * scaleDelta;
       const scale = baseScale * zoomMultiplier;
 
@@ -249,11 +296,11 @@ export const BackgroundVideo: React.FC = () => {
       }
 
       // Horizontal slight docking drift to stay snugly in the bottom-right
-      const maxTx = isMobile ? 8 : 24;
+      const maxTx = 24;
       const tx = progress * maxTx;
 
       el.style.transform = `translate3d(${tx.toFixed(1)}px, ${ty.toFixed(1)}px, 0) scale(${scale.toFixed(4)})`;
-      el.style.opacity = isMobile ? (0.42 - progress * 0.12).toFixed(3) : '1';
+      el.style.opacity = '1';
     };
 
     const updateScrollProgress = () => {
@@ -330,18 +377,12 @@ export const BackgroundVideo: React.FC = () => {
 
       {/* 
         2. Character Layer:
-        Strictly anchored to the RIGHT third of the viewport.
-        Desktop bounds: x=1102..1850px on 1920px screen (~15% size increase). Zero overlap with left headline/buttons.
+        - Mobile: fixed static placement (240px wide, bottom-right, stationary, no interference with text or menu)
+        - Desktop: strictly anchored to the RIGHT third of the viewport with zoom & scroll responsiveness.
       */}
       <div
         ref={containerRef}
-        className="fixed bottom-0 z-0 pointer-events-none select-none will-change-transform"
-        style={{
-          right: 'clamp(24px, 4vw, 70px)',
-          width: 'clamp(368px, 39vw, 748px)',
-          aspectRatio: '1000 / 1030',
-          transformOrigin: 'bottom right',
-        }}
+        className="fixed bottom-0 z-0 pointer-events-none select-none will-change-transform right-3 w-[240px] md:right-[clamp(24px,4vw,70px)] md:w-[clamp(368px,39vw,748px)] aspect-[1000/1030] origin-bottom-right"
         aria-hidden="true"
       >
         {/* Instant fallback poster while GPU decodes frames */}
