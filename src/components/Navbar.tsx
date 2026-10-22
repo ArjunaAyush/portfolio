@@ -38,7 +38,7 @@ export const Navbar: React.FC = () => {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 w-full z-30 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between pointer-events-none transition-all">
+      <header className="fixed top-0 left-0 right-0 w-full z-50 px-4 sm:px-8 py-3 sm:py-4 flex items-center justify-between pointer-events-none transition-all">
         {/* Brand / Monogram Pill (Left) */}
         <a
           href="#"
@@ -111,33 +111,24 @@ export const Navbar: React.FC = () => {
         </button>
       </header>
 
-      {/* Mobile Drawer (z-index: 25) */}
+      {/* Mobile Drawer (z-index: 40, above header z-30 and main content z-10) */}
       <div
-        className={`fixed inset-0 z-25 bg-[#060913]/95 backdrop-blur-2xl flex flex-col justify-center px-8 gap-6 md:hidden transition-all duration-300 ${
+        className={`fixed inset-0 z-40 bg-[#060913] flex flex-col justify-center px-8 md:hidden transition-all duration-300 ${
           isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         aria-hidden={!isMenuOpen}
       >
-        <div className="flex flex-col gap-5 text-left">
+        <div className="flex flex-col gap-6 text-left max-w-sm">
           {NAV_LINKS.map((link) => (
             <a
               key={link.label}
               href={link.href}
               onClick={(e) => handleScrollTo(e, link.href)}
-              className="text-2xl font-medium text-slate-200 hover:text-rose-400 transition-colors"
+              className="text-2xl font-medium text-slate-200 hover:text-rose-400 active:text-rose-400 transition-colors py-1 cursor-pointer"
             >
               {link.label}
             </a>
           ))}
-          <a
-            href="https://github.com/arjunaayush"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xl font-medium text-rose-400 pt-4 border-t border-white/10 flex items-center gap-2"
-          >
-            <span>GitHub @arjunaayush</span>
-            <span className="text-xs">↗</span>
-          </a>
         </div>
       </div>
     </>
