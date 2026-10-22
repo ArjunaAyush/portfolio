@@ -272,7 +272,7 @@ export const BackgroundVideo: React.FC = () => {
       // On normal mobile viewports: retain the original size (scale 1.3) and full visibility
       // The avatar remains completely stable and static across all scrolling and viewport zoom calculations
       if (isMobile) {
-        el.style.transform = 'translate3d(0px, 0px, 0) scale(1.3000)';
+        el.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
         el.style.opacity = '1';
         return;
       }
