@@ -269,11 +269,11 @@ export const BackgroundVideo: React.FC = () => {
       const isMobile = width < 768;
       const isTablet = width >= 768 && width < 1024;
 
-      // On normal mobile viewports: keep the avatar completely static at a fixed scale
-      // It must not grow, shrink, rotate, or move with scroll, touch, or zoom calculations
+      // On normal mobile viewports: retain the original size (scale 1.3) and full visibility
+      // The avatar remains completely stable and static across all scrolling and viewport zoom calculations
       if (isMobile) {
-        el.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
-        el.style.opacity = '0.35';
+        el.style.transform = 'translate3d(0px, 0px, 0) scale(1.3000)';
+        el.style.opacity = '1';
         return;
       }
 
@@ -377,12 +377,21 @@ export const BackgroundVideo: React.FC = () => {
 
       {/* 
         2. Character Layer:
-        - Mobile: fixed static placement (240px wide, bottom-right, stationary, no interference with text or menu)
-        - Desktop: strictly anchored to the RIGHT third of the viewport with zoom & scroll responsiveness.
+        - Mobile & Desktop: preserves original sizing and bottom-right anchor.
+        - Mobile: remains completely static at its original scale without scroll-shrinking.
+        - Desktop: smooth head-turn animation with scroll-linked docking & browser zoom responsiveness.
       */}
       <div
         ref={containerRef}
-        className="fixed bottom-0 z-0 pointer-events-none select-none will-change-transform right-3 w-[240px] md:right-[clamp(24px,4vw,70px)] md:w-[clamp(368px,39vw,748px)] aspect-[1000/1030] origin-bottom-right"
+        className="fixed bottom-0 z-0 pointer-events-none select-none will-change-transform"
+        style={{
+          right: 'clamp(24px, 4vw, 70px)',
+          width: 'clamp(368px, 39vw, 748px)',
+          aspectRatio: '1000 / 1030',
+          transformOrigin: 'bottom right',
+          transform: 'translate3d(0px, 0px, 0) scale(1.3000)',
+          opacity: 1,
+        }}
         aria-hidden="true"
       >
         {/* Instant fallback poster while GPU decodes frames */}
