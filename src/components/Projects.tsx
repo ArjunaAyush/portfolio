@@ -5,10 +5,13 @@ import { ShaderAnimation } from './ui/shader-animation';
 
 export const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<SeniorProjectData | null>(null);
-  const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [flippedIds, setFlippedIds] = useState<Record<string, boolean>>({});
 
-  const toggleExpand = (id: string) => {
-    setExpandedId((prev) => (prev === id ? null : id));
+  const toggleFlip = (id: string) => {
+    setFlippedIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
   return (
@@ -45,163 +48,243 @@ export const Projects: React.FC = () => {
         </h2>
 
         <p className="text-[#E2DFD8] text-sm sm:text-base mb-10 max-w-xl font-normal leading-relaxed site-paragraph">
-          Production Android applications engineered with modern Kotlin, Jetpack Compose, Room SQLite, and AndroidX Media3.
+          Production Android applications engineered with modern Kotlin, Jetpack Compose, Room SQLite, and AndroidX Media3. Tap any card to flip between telemetry benchmarks and architecture diagrams.
         </p>
 
-        {/* Compact, Expandable Projects Stack (Show, Don't Tell) */}
-        <div className="space-y-6 w-full">
+        {/* SHOW, DON'T TELL: Interactive Flip Cards Stack */}
+        <div className="space-y-8 w-full">
           {PROJECTS_DATA.map((project, idx) => {
-            const isExpanded = expandedId === project.id;
+            const isFlipped = !!flippedIds[project.id];
 
             return (
               <div
                 key={project.id || project.title}
-                className="p-6 sm:p-8 rounded-3xl border border-white/10 backdrop-blur-2xl bg-black/80 hover:border-[#FF2A00]/40 transition-all duration-300 shadow-2xl shadow-black/80 group"
+                className="relative rounded-3xl border border-white/10 backdrop-blur-2xl bg-black/85 hover:border-[#FF2A00]/40 transition-all duration-300 shadow-2xl shadow-black/80 overflow-hidden group"
               >
-                {/* Header Row: Index, Category, GitHub link */}
-                <div className="flex items-center justify-between gap-3 mb-4">
-                  <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-mono text-stone-400">
-                      [0{idx + 1}]
-                    </span>
-                    <span className="text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FF2A00]/15 text-[#FF2A00] border border-[#FF2A00]/30 font-mono font-medium">
-                      {project.category}
-                    </span>
-                  </div>
-
-                  <a
-                    href={project.repoUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-[#FAF8F5] hover:text-[#F59E0B] font-medium transition-colors underline underline-offset-4"
-                    aria-label={`View ${project.title} on GitHub`}
-                  >
-                    <span>View Repository</span>
-                    <svg
-                      width="13"
-                      height="13"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
-                    >
-                      <path d="M7 17L17 7M17 7H7M17 7V17" />
-                    </svg>
-                  </a>
-                </div>
-
-                {/* Title & Tagline */}
-                <h3
-                  className="text-2xl sm:text-3xl text-[#FAF8F5] font-normal mb-1 tracking-tight"
-                  style={{ fontFamily: 'var(--font-heading)' }}
-                >
-                  {project.title}
-                </h3>
-                <p className="text-xs sm:text-sm text-[#F59E0B] mb-3 font-medium font-mono">
-                  {project.tagline}
-                </p>
-
-                {/* Compact 1-line Summary */}
-                <p className="text-sm text-[#E2DFD8] leading-relaxed mb-4 font-normal">
-                  {project.description}
-                </p>
-
-                {/* SHOW, DON'T TELL: Live Telemetry Metrics Pill Bar */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
-                  <div className="px-3 py-2 rounded-xl bg-stone-950/80 border border-white/5 flex flex-col">
-                    <span className="text-[10px] font-mono uppercase text-stone-400">Cold TTID</span>
-                    <span className="text-xs font-semibold text-[#FF2A00] font-mono">{project.metrics.startupTime}</span>
-                  </div>
-                  <div className="px-3 py-2 rounded-xl bg-stone-950/80 border border-white/5 flex flex-col">
-                    <span className="text-[10px] font-mono uppercase text-stone-400">Jank Rate</span>
-                    <span className="text-xs font-semibold text-emerald-400 font-mono">{project.metrics.jankRate}</span>
-                  </div>
-                  <div className="px-3 py-2 rounded-xl bg-stone-950/80 border border-white/5 flex flex-col">
-                    <span className="text-[10px] font-mono uppercase text-stone-400">Memory PSS</span>
-                    <span className="text-xs font-semibold text-[#F59E0B] font-mono">{project.metrics.memoryPss}</span>
-                  </div>
-                  <div className="px-3 py-2 rounded-xl bg-stone-950/80 border border-white/5 flex flex-col">
-                    <span className="text-[10px] font-mono uppercase text-stone-400">APK Size</span>
-                    <span className="text-xs font-semibold text-cyan-400 font-mono">{project.metrics.apkSize}</span>
-                  </div>
-                </div>
-
-                {/* Tech Stack Pills (Always Visible, Compact) */}
-                <div className="flex flex-wrap gap-1.5 items-center mb-5">
-                  {project.techStack.map((tech) => (
-                    <span
-                      key={tech}
-                      className="px-2.5 py-0.5 text-[11px] rounded-full bg-stone-950 border border-stone-800 text-[#FAF8F5] font-mono"
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-
-                {/* SHOW, DON'T TELL: Expandable Visual Architecture & Specs Tray */}
-                {isExpanded && (
-                  <div className="pt-5 pb-3 border-t border-white/10 space-y-5 animate-in fade-in duration-300">
-                    {/* Visual Architecture Flow Diagram (SHOW, DON'T TELL) */}
+                {!isFlipped ? (
+                  /* FRONT FACE: Overview + Telemetry Benchmark Charts */
+                  <div className="p-6 sm:p-8 flex flex-col justify-between min-h-[380px]">
                     <div>
-                      <h4 className="text-xs uppercase tracking-wider text-stone-400 font-mono mb-2.5">
-                        Clean Architecture Pipeline (UDF Flow)
-                      </h4>
-                      <div className="p-3.5 rounded-2xl bg-stone-950/90 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-[#FAF8F5]">
-                        <div className="px-3 py-1.5 rounded-lg bg-[#FF2A00]/20 border border-[#FF2A00]/40 text-[#FF2A00]">
-                          Presentation (Compose UI)
+                      {/* Header Row: Index, Category, GitHub link */}
+                      <div className="flex items-center justify-between gap-3 mb-4">
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-xs font-mono text-stone-400">
+                            [0{idx + 1}]
+                          </span>
+                          <span className="text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FF2A00]/15 text-[#FF2A00] border border-[#FF2A00]/30 font-mono font-medium">
+                            {project.category}
+                          </span>
                         </div>
-                        <span className="text-stone-500">──StateFlow──▶</span>
-                        <div className="px-3 py-1.5 rounded-lg bg-[#F59E0B]/20 border border-[#F59E0B]/40 text-[#F59E0B]">
-                          Domain (UseCases)
+
+                        <a
+                          href={project.repoUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1.5 text-xs text-[#FAF8F5] hover:text-[#F59E0B] font-medium transition-colors underline underline-offset-4"
+                          aria-label={`View ${project.title} on GitHub`}
+                        >
+                          <span>View Repository</span>
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                          >
+                            <path d="M7 17L17 7M17 7H7M17 7V17" />
+                          </svg>
+                        </a>
+                      </div>
+
+                      {/* Title & Tagline */}
+                      <h3
+                        className="text-2xl sm:text-3xl text-[#FAF8F5] font-normal mb-1 tracking-tight"
+                        style={{ fontFamily: 'var(--font-heading)' }}
+                      >
+                        {project.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[#F59E0B] mb-3 font-medium font-mono">
+                        {project.tagline}
+                      </p>
+
+                      <p className="text-sm text-[#E2DFD8] leading-relaxed mb-6 font-normal">
+                        {project.description}
+                      </p>
+
+                      {/* SHOW, DON'T TELL: Benchmark Visual Charts & Telemetry */}
+                      <div className="mb-6 p-4 rounded-2xl bg-stone-950/90 border border-white/5 space-y-3">
+                        <div className="text-[11px] uppercase tracking-wider text-stone-400 font-mono flex items-center justify-between">
+                          <span>Live Telemetry &amp; Optimization Benchmarks</span>
+                          <span className="text-emerald-400 font-semibold">Verified on Hardware</span>
                         </div>
-                        <span className="text-stone-500">──Coroutines──▶</span>
-                        <div className="px-3 py-1.5 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300">
-                          Data (Room + Media3)
+
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+                          {/* Cold TTID */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[10px] font-mono text-stone-400">
+                              <span>Cold TTID</span>
+                              <span className="text-[#FF2A00]">{project.metrics.startupTime}</span>
+                            </div>
+                            <div className="w-full h-1.5 rounded-full bg-stone-800 overflow-hidden">
+                              <div className="h-full bg-gradient-to-r from-[#FF2A00] to-[#E11D48] w-[46%]" />
+                            </div>
+                          </div>
+
+                          {/* Jank Rate */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[10px] font-mono text-stone-400">
+                              <span>Jank Rate</span>
+                              <span className="text-emerald-400">{project.metrics.jankRate}</span>
+                            </div>
+                            <div className="w-full h-1.5 rounded-full bg-stone-800 overflow-hidden">
+                              <div className="h-full bg-emerald-400 w-[98%]" />
+                            </div>
+                          </div>
+
+                          {/* Memory PSS */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[10px] font-mono text-stone-400">
+                              <span>Memory PSS</span>
+                              <span className="text-[#F59E0B]">{project.metrics.memoryPss}</span>
+                            </div>
+                            <div className="w-full h-1.5 rounded-full bg-stone-800 overflow-hidden">
+                              <div className="h-full bg-gradient-to-r from-[#F59E0B] to-amber-300 w-[35%]" />
+                            </div>
+                          </div>
+
+                          {/* APK Size */}
+                          <div className="space-y-1">
+                            <div className="flex justify-between text-[10px] font-mono text-stone-400">
+                              <span>R8 Full APK</span>
+                              <span className="text-cyan-400">{project.metrics.apkSize}</span>
+                            </div>
+                            <div className="w-full h-1.5 rounded-full bg-stone-800 overflow-hidden">
+                              <div className="h-full bg-cyan-400 w-[28%]" />
+                            </div>
+                          </div>
                         </div>
+                      </div>
+
+                      {/* Tech Stack Badges */}
+                      <div className="flex flex-wrap gap-1.5 items-center mb-6">
+                        {project.techStack.map((tech) => (
+                          <span
+                            key={tech}
+                            className="px-2.5 py-0.5 text-[11px] rounded-full bg-stone-950 border border-stone-800 text-[#FAF8F5] font-mono"
+                          >
+                            {tech}
+                          </span>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Engineering Highlights */}
+                    {/* Action Bar */}
+                    <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => toggleFlip(project.id)}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#FF2A00]/25 via-[#E11D48]/20 to-[#F59E0B]/20 hover:from-[#FF2A00]/40 hover:to-[#F59E0B]/35 border border-[#FF2A00]/40 text-xs font-mono text-[#FAF8F5] transition-all duration-200 active:scale-95 cursor-pointer shadow-md"
+                      >
+                        <span>Flip to System Diagram</span>
+                        <span className="text-[#FF2A00] font-bold">⟲</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setSelectedProject(project)}
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 hover:border-white/25 text-xs font-mono text-[#FAF8F5] transition-all duration-200 active:scale-95 cursor-pointer"
+                      >
+                        <span>⚡ Tech Specs Modal</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* BACK FACE: Visual System Architecture Pipeline & Data Flow Diagram */
+                  <div className="p-6 sm:p-8 flex flex-col justify-between min-h-[380px] bg-[#05060A]/95 animate-in fade-in duration-300">
                     <div>
-                      <h4 className="text-xs uppercase tracking-wider text-stone-400 font-mono mb-2">
-                        Core Engineering Highlights
-                      </h4>
-                      <ul className="space-y-1.5">
-                        {project.contributions.slice(0, 3).map((c, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs sm:text-sm text-[#E2DFD8] leading-relaxed">
-                            <span className="text-[#FF2A00] shrink-0 mt-0.5">✦</span>
-                            <span>{c}</span>
-                          </li>
-                        ))}
-                      </ul>
+                      {/* Header */}
+                      <div className="flex items-center justify-between gap-3 mb-5 pb-3 border-b border-white/10">
+                        <div className="flex items-center gap-2">
+                          <span className="w-2 h-2 rounded-full bg-[#FF2A00] animate-pulse" />
+                          <h4 className="text-sm font-mono uppercase tracking-wider text-[#FAF8F5] font-semibold">
+                            {project.title} // System Architecture Diagram
+                          </h4>
+                        </div>
+                        <span className="text-xs font-mono text-[#F59E0B]">
+                          {project.architecturePattern.split('+')[0].trim()}
+                        </span>
+                      </div>
+
+                      {/* Visual System Pipeline (SHOW, DON'T TELL) */}
+                      <div className="mb-6 space-y-3">
+                        <div className="p-4 rounded-2xl bg-black/90 border border-white/10 space-y-3">
+                          <div className="text-[11px] font-mono uppercase tracking-wider text-stone-400">
+                            Unidirectional Data Flow Pipeline (UDF)
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
+                            {/* Layer 1 */}
+                            <div className="p-3 rounded-xl bg-stone-900/90 border border-[#FF2A00]/30 space-y-1">
+                              <div className="text-[10px] text-[#FF2A00] uppercase font-bold">1. Presentation</div>
+                              <div className="text-[#FAF8F5] font-semibold">Compose UI</div>
+                              <p className="text-[10px] text-stone-400">Immutable StateFlow emission, @Immutable models, 0 recomposition</p>
+                            </div>
+
+                            {/* Layer 2 */}
+                            <div className="p-3 rounded-xl bg-stone-900/90 border border-[#F59E0B]/30 space-y-1">
+                              <div className="text-[10px] text-[#F59E0B] uppercase font-bold">2. Domain Logic</div>
+                              <div className="text-[#FAF8F5] font-semibold">Pure UseCases</div>
+                              <p className="text-[10px] text-stone-400">0 Android framework imports, Coroutine Worker, state machine</p>
+                            </div>
+
+                            {/* Layer 3 */}
+                            <div className="p-3 rounded-xl bg-stone-900/90 border border-cyan-500/30 space-y-1">
+                              <div className="text-[10px] text-cyan-300 uppercase font-bold">3. Data &amp; Hardware</div>
+                              <div className="text-[#FAF8F5] font-semibold">Room + Media3</div>
+                              <p className="text-[10px] text-stone-400">WAL SQLite cache, ExoPlayer decoder recycling, zero-buffer</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Engineering Challenge Solved Highlight */}
+                        {project.challengesSolved?.[0] && (
+                          <div className="p-3.5 rounded-xl bg-stone-950/70 border border-white/5 space-y-1">
+                            <span className="text-[10px] font-mono uppercase text-[#F59E0B] font-semibold">
+                              Key Challenge Solved: {project.challengesSolved[0].title}
+                            </span>
+                            <p className="text-xs text-[#E2DFD8] leading-relaxed">
+                              {project.challengesSolved[0].impact}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Action Bar */}
+                    <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => toggleFlip(project.id)}
+                        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-[#F59E0B]/25 to-[#FF2A00]/25 hover:from-[#F59E0B]/40 hover:to-[#FF2A00]/40 border border-[#F59E0B]/40 text-xs font-mono text-[#FAF8F5] transition-all duration-200 active:scale-95 cursor-pointer shadow-md"
+                      >
+                        <span>Flip to Overview &amp; Benchmarks</span>
+                        <span className="text-[#F59E0B] font-bold">⟳</span>
+                      </button>
+
+                      <a
+                        href={project.repoUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 hover:border-white/25 text-xs font-mono text-[#FAF8F5] transition-all duration-200 active:scale-95 cursor-pointer"
+                      >
+                        <span>Open GitHub Repo ↗</span>
+                      </a>
                     </div>
                   </div>
                 )}
-
-                {/* Action Bar: Stateful Expand & Modal Trigger */}
-                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
-                  <button
-                    type="button"
-                    onClick={() => toggleExpand(project.id)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 hover:border-[#FF2A00]/40 text-xs font-mono text-[#FAF8F5] transition-all duration-200 active:scale-95 cursor-pointer"
-                  >
-                    <span>{isExpanded ? 'Collapse Details' : 'Expand Architecture'}</span>
-                    <span className="text-[#FF2A00] transition-transform duration-200">
-                      {isExpanded ? '▴' : '▾'}
-                    </span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setSelectedProject(project)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF2A00]/20 hover:bg-[#FF2A00]/30 border border-[#FF2A00]/40 hover:border-[#FF2A00]/70 text-xs font-mono text-[#FAF8F5] hover:text-white transition-all duration-200 active:scale-95 cursor-pointer"
-                  >
-                    <span>⚡ Tech Specs Modal</span>
-                  </button>
-                </div>
               </div>
             );
           })}

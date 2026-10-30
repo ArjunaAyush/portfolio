@@ -882,11 +882,11 @@ function PerspectiveCubes({
   gridSize,
   gap = 0.08,
   baseColor = "#081638",
-  waveColor = "#ff2a00",
-  backgroundColor = "#060913",
-  glow = 0.85,
-  amplitude = 0.5,
-  tilt = 0.7,
+  waveColor = "#FF2A00",
+  backgroundColor = "#000000",
+  glow = 1.0,
+  amplitude = 0.42,
+  tilt = 0.65,
   idleRipples = true,
 }: PerspectiveCubesProps) {
   const containerRef = useRef<HTMLDivElement>(null);
