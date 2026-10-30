@@ -386,7 +386,7 @@ export const BackgroundVideo: React.FC = () => {
       */}
       <div
         ref={containerRef}
-        className="fixed bottom-0 z-20 pointer-events-none select-none will-change-transform"
+        className="fixed bottom-0 z-[35] pointer-events-none select-none will-change-transform"
         style={{
           right: 'clamp(16px, 3.5vw, 64px)',
           width: 'clamp(260px, 28vw, 500px)',

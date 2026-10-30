@@ -17,7 +17,7 @@ export const BlurredTransition: React.FC<BlurredTransitionProps> = ({
 
   return (
     <div
-      className={`relative w-full z-20 pointer-events-none select-none overflow-hidden flex items-center justify-center ${blurClasses} ${className}`}
+      className={`relative w-full z-10 pointer-events-none select-none overflow-hidden flex items-center justify-center ${blurClasses} ${className}`}
       aria-hidden="true"
     >
       {/* Translucent material diffusion mask */}
