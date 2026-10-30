@@ -21,9 +21,9 @@ export const Projects: React.FC = () => {
     >
       {/* Ambient Looping WebGL Shader Backdrop (Brilliantly Visible at z-0) */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-        <ShaderAnimation className="w-full h-full opacity-80" />
+        <ShaderAnimation className="w-full h-full opacity-90" />
         {/* Subtle Dark Vignette: Keeps Shader Lines Pulsing while Text Remains 100% Legible */}
-        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
         <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-transparent to-[#000000]" />
       </div>
 

@@ -9,7 +9,10 @@ export function ShaderAnimation({ className }: { className?: string } = {}) {
     camera: THREE.Camera
     scene: THREE.Scene
     renderer: THREE.WebGLRenderer
-    uniforms: any
+    uniforms: {
+      time: { type: string; value: number }
+      resolution: { type: string; value: THREE.Vector2 }
+    }
     animationId: number
   } | null>(null)
 
@@ -25,7 +28,7 @@ export function ShaderAnimation({ className }: { className?: string } = {}) {
       }
     `
 
-    // Fragment shader
+    // Fragment shader - continuously looping multi-phase waves with zero dark void
     const fragmentShader = `
       #define TWO_PI 6.2831853072
       #define PI 3.14159265359
@@ -36,17 +39,43 @@ export function ShaderAnimation({ className }: { className?: string } = {}) {
 
       void main(void) {
         vec2 uv = (gl_FragCoord.xy * 2.0 - resolution.xy) / min(resolution.x, resolution.y);
-        float t = time*0.05;
-        float lineWidth = 0.002;
+        // Faster energetic loop frequency
+        float t = time * 0.14;
+        float lineWidth = 0.0024;
 
         vec3 color = vec3(0.0);
+        
+        // Continuous multi-phase wave loop (phase1 + phase2 interleaved)
+        // Eliminates black dead gaps so active glowing waves are constantly on screen
         for(int j = 0; j < 3; j++){
-          for(int i=0; i < 5; i++){
-            color[j] += lineWidth*float(i*i) / abs(fract(t - 0.01*float(j)+float(i)*0.01)*5.0 - length(uv) + mod(uv.x+uv.y, 0.2));
+          float chanOffset = 0.014 * float(j);
+          for(int i = 0; i < 5; i++){
+            float lineOffset = float(i) * 0.018;
+            float weight = lineWidth * float(i * i + 1);
+
+            // Wave phase 1
+            float phase1 = fract(t - chanOffset + lineOffset) * 2.5;
+            float d1 = abs(phase1 - length(uv) + mod(uv.x + uv.y, 0.22));
+            color[j] += weight / (d1 + 0.0025);
+
+            // Interleaved wave phase 2 (offset by 0.5 cycle so waves constantly flow)
+            float phase2 = fract(t + 0.5 - chanOffset + lineOffset) * 2.5;
+            float d2 = abs(phase2 - length(uv) + mod(uv.x + uv.y, 0.22));
+            color[j] += weight / (d2 + 0.0025);
           }
         }
         
-        gl_FragColor = vec4(color[0],color[1],color[2],1.0);
+        // Prevent pixel blowout
+        color = clamp(color, 0.0, 1.2);
+
+        // Harmonize with warm Amber-Red / Gold and deep navy atmosphere
+        vec3 finalColor = vec3(
+          color.r * 1.2 + color.g * 0.15,
+          color.g * 0.7 + color.b * 0.15,
+          color.b * 0.95
+        );
+        
+        gl_FragColor = vec4(finalColor, 1.0);
       }
     `
 
@@ -98,7 +127,7 @@ export function ShaderAnimation({ className }: { className?: string } = {}) {
     const animate = () => {
       if (!isVisible) return
       animationId = requestAnimationFrame(animate)
-      uniforms.time.value += 0.04
+      uniforms.time.value += 0.05
       renderer.render(scene, camera)
 
       if (sceneRef.current) {
