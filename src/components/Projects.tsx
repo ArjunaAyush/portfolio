@@ -18,7 +18,7 @@ export const Projects: React.FC = () => {
       id="projects"
       className="relative w-full py-20 sm:py-28 px-5 sm:px-8 md:px-12 lg:px-16 overflow-hidden z-10"
     >
-      <div className="site-container relative z-20">
+      <div className="site-container mx-auto relative z-20">
         {/* Eyebrow Tag: Redaction 70 */}
         <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#FF2A00]/30 mb-6 backdrop-blur-xl bg-black/75 shadow-lg shadow-black/50">
           <span className="w-2 h-2 rounded-full bg-[#FF2A00] shadow-[0_0_8px_rgba(255,42,0,0.9)] animate-pulse" />
