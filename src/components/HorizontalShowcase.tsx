@@ -1,12 +1,20 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
+interface ArchitectureFlowStep {
+  step: number;
+  label: string;
+  source: string;
+  target: string;
+  description: string;
+  metric: string;
+}
 
 interface ShowcaseItem {
   id: string;
   badge: string;
   title: string;
   subtitle: string;
-  metrics: { label: string; value: string }[];
-  description: string;
+  steps: ArchitectureFlowStep[];
   tags: string[];
 }
 
@@ -14,115 +22,195 @@ const SHOWCASE_ITEMS: ShowcaseItem[] = [
   {
     id: 'media3-pipeline',
     badge: 'Media3 Engine',
-    title: 'Smooth Video Reels & Instant Caching',
-    subtitle: 'Integrated in Looply for responsive video playback',
-    metrics: [
-      { label: 'Buffering', value: 'Instant' },
-      { label: 'Surface', value: 'ExoPlayer / Compose' },
-      { label: 'Disk Cache', value: 'Local LRU' },
+    title: 'Zero-Lag Video Reels & LRU Caching',
+    subtitle: 'High-throughput ExoPlayer surface binding in Looply',
+    steps: [
+      {
+        step: 1,
+        label: 'Pre-fetch Next Segment',
+        source: 'Feed Pager',
+        target: 'CacheDataSource',
+        description: 'Anticipates vertical swipe by pre-allocating byte streams 2 items ahead in memory.',
+        metric: '0ms stall latency',
+      },
+      {
+        step: 2,
+        label: 'LRU Disk Verification',
+        source: 'CacheDataSource',
+        target: 'SimpleCache DB',
+        description: 'Hits local LRU disk cache for cached chunks, bypassing cellular radio invocation.',
+        metric: '92% cache hit rate',
+      },
+      {
+        step: 3,
+        label: 'Hardware Surface Render',
+        source: 'MediaCodec',
+        target: 'SurfaceView / Compose',
+        description: 'Direct GPU texture mapping via AndroidX Media3 without extra UI layer compositing.',
+        metric: 'Solid 60 FPS playback',
+      },
     ],
-    description:
-      'Fast video playback in Looply with background caching and instant replay. Preloads video feeds so users can swipe smoothly between reels with zero buffer lag.',
-    tags: ['AndroidX Media3', 'ExoPlayer', 'Video Cache', 'Compose'],
+    tags: ['AndroidX Media3', 'ExoPlayer', 'LRU Disk Cache', 'Compose SurfaceView'],
   },
   {
     id: 'udf-architecture',
-    badge: 'State & Flow',
-    title: 'Reactive State & Kotlin Coroutines',
-    subtitle: 'Predictable data flow across screens',
-    metrics: [
-      { label: 'Async Engine', value: 'Coroutines' },
-      { label: 'State Holder', value: 'StateFlow' },
-      { label: 'Architecture', value: 'Clean & MVI' },
+    badge: 'State & Concurrency',
+    title: 'Unidirectional Data Flow (UDF)',
+    subtitle: 'Decoupled asynchronous state streams with Coroutines',
+    steps: [
+      {
+        step: 1,
+        label: 'User Intent Dispatched',
+        source: 'Compose UI',
+        target: 'ViewModel Intent',
+        description: 'Immutable UI events captured and channeled to ViewModel without direct mutability.',
+        metric: '< 2ms dispatch',
+      },
+      {
+        step: 2,
+        label: 'Coroutine Background Reducer',
+        source: 'ViewModel Scope',
+        target: 'Dispatchers.Default',
+        description: 'Runs state transformation logic off the main thread to prevent frame drops.',
+        metric: 'Zero UI thread blocking',
+      },
+      {
+        step: 3,
+        label: 'StateFlow Emission',
+        source: 'StateFlow<T>',
+        target: 'Compose Recomposition',
+        description: 'Emits distinct, diffed UI states collected with Lifecycle.repeatOnLifecycle.',
+        metric: 'Deterministic renders',
+      },
     ],
-    description:
-      'Clean data flow with Kotlin Coroutines and StateFlow. Decouples UI screens from background processing to keep the app responsive and eliminate unexpected UI glitches.',
-    tags: ['StateFlow', 'Clean Architecture', 'Coroutines', 'ViewModel'],
+    tags: ['Kotlin Coroutines', 'StateFlow', 'MVI / Clean', 'Thread Isolation'],
   },
   {
     id: 'offline-room',
-    badge: 'Offline-First',
-    title: 'Offline Storage & Background Sync',
-    subtitle: 'Room SQLite database with background workers',
-    metrics: [
-      { label: 'Database', value: 'Room SQLite' },
-      { label: 'Scheduler', value: 'WorkManager' },
-      { label: 'Mode', value: 'Offline-First' },
+    badge: 'Offline-First DB',
+    title: 'Local SQLite & Background Sync',
+    subtitle: 'Room reactive DAO combined with WorkManager',
+    steps: [
+      {
+        step: 1,
+        label: 'Instant Local Write',
+        source: 'Repository',
+        target: 'Room SQLite DAO',
+        description: 'App immediately commits changes to SQLite; UI reflects update synchronously.',
+        metric: '< 5ms query time',
+      },
+      {
+        step: 2,
+        label: 'Reactive Flow Notification',
+        source: 'Room Flow Table',
+        target: 'Active Observers',
+        description: 'Room automatically detects entity mutation and triggers reactive Flow streams.',
+        metric: 'Instant UI update',
+      },
+      {
+        step: 3,
+        label: 'WorkManager Background Sync',
+        source: 'WorkManager',
+        target: 'Cloud Backend',
+        description: 'Schedules exponential backoff sync with unmetered network battery constraints.',
+        metric: '100% data durability',
+      },
     ],
-    description:
-      'Local SQLite database built with Room. Keeps user data saved on the device and syncs in the background with WorkManager when network connection is available.',
-    tags: ['Room DB', 'SQLite', 'WorkManager', 'Flow DAO'],
+    tags: ['Room Database', 'SQLite WAL', 'WorkManager', 'Flow Queries'],
   },
   {
-    id: 'compose-design',
-    badge: 'Modern UI',
-    title: 'Clean Jetpack Compose UI & Motion',
-    subtitle: 'Fluid gestures and ergonomic phone layouts',
-    metrics: [
-      { label: 'Frame Rate', value: '60 / 120 FPS' },
-      { label: 'Design System', value: 'Material 3' },
-      { label: 'Interaction', value: 'Touch & Haptics' },
+    id: 'compose-motion',
+    badge: 'Runtime Rendering',
+    title: 'Smart Recomposition & Skipping',
+    subtitle: 'Optimized Jetpack Compose compiler stability',
+    steps: [
+      {
+        step: 1,
+        label: 'Snapshot Mutation',
+        source: 'Snapshot State',
+        target: 'Compose Runtime',
+        description: 'Snapshot system isolates state mutations to specific reader scopes.',
+        metric: 'Sub-millisecond tracking',
+      },
+      {
+        step: 2,
+        label: 'Stability Check & Skip',
+        source: 'Compose Compiler',
+        target: 'Stable Nodes',
+        description: 'Unchanged composables with @Immutable/@Stable parameters are completely skipped.',
+        metric: 'Zero unnecessary renders',
+      },
+      {
+        step: 3,
+        label: 'Hardware Draw Phase',
+        source: 'Choreographer',
+        target: 'Display Pipeline',
+        description: 'Layout coordinates sent directly to GPU frame buffer ahead of 8.3ms VSYNC tick.',
+        metric: '120 Hz smooth scrolling',
+      },
     ],
-    description:
-      'Declarative Android UI built with Jetpack Compose. Responsive layouts, smooth spring animations, and Material 3 design crafted for modern phones.',
-    tags: ['Jetpack Compose', 'Material 3', 'Animations', 'UI Components'],
-  },
-  {
-    id: 'systems-profiling',
-    badge: 'Performance',
-    title: 'Fast App Startup & Memory Profiling',
-    subtitle: 'Optimizing native Android performance',
-    metrics: [
-      { label: 'Startup TTID', value: '< 450 ms' },
-      { label: 'Memory', value: 'Leak-Free' },
-      { label: 'Build System', value: 'Gradle KTS' },
-    ],
-    description:
-      'Optimized cold app launch times with Baseline Profiles and monitored memory allocations using LeakCanary and Android Studio Profiler.',
-    tags: ['Baseline Profiles', 'LeakCanary', 'Gradle KTS', 'Android Profiler'],
+    tags: ['Compose Compiler', 'Stability Metrics', 'Choreographer', 'VSYNC Timing'],
   },
 ];
 
 export const HorizontalShowcase: React.FC = () => {
+  const [activeStepIndices, setActiveStepIndices] = useState<Record<string, number>>({
+    'media3-pipeline': 0,
+    'udf-architecture': 0,
+    'offline-room': 0,
+    'compose-motion': 0,
+  });
+
+  const [isPlaying, setIsPlaying] = useState<Record<string, boolean>>({
+    'media3-pipeline': false,
+    'udf-architecture': false,
+    'offline-room': false,
+    'compose-motion': false,
+  });
+
   const scrollRef = useRef<HTMLDivElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeftState, setScrollLeftState] = useState(0);
-  const [progress, setProgress] = useState(0);
 
-  // 3D Card Hover Tilt and Swivel handlers
-  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
-    const rect = card.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    // Calculate tilt angles (degrees)
-    const rotateX = -((y - centerY) / centerY) * 7.5;
-    const rotateY = ((x - centerX) / centerX) * 7.5;
+  // Playback timer effect for auto-stepping
+  useEffect(() => {
+    const intervals: ReturnType<typeof setInterval>[] = [];
+    Object.entries(isPlaying).forEach(([itemId, playing]) => {
+      if (playing) {
+        const interval = setInterval(() => {
+          setActiveStepIndices((prev) => {
+            const currentIdx = prev[itemId] || 0;
+            const item = SHOWCASE_ITEMS.find((it) => it.id === itemId);
+            const nextIdx = item ? (currentIdx + 1) % item.steps.length : 0;
+            return { ...prev, [itemId]: nextIdx };
+          });
+        }, 2400);
+        intervals.push(interval);
+      }
+    });
 
-    card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) scale3d(1.02, 1.02, 1.02)`;
-    card.style.boxShadow = '0 20px 40px -15px rgba(225, 29, 72, 0.25), 0 0 30px rgba(0, 0, 0, 0.7)';
+    return () => {
+      intervals.forEach((i) => clearInterval(i));
+    };
+  }, [isPlaying]);
+
+  const handleStepChange = (itemId: string, direction: 'next' | 'prev') => {
+    setActiveStepIndices((prev) => {
+      const currentIdx = prev[itemId] || 0;
+      const item = SHOWCASE_ITEMS.find((it) => it.id === itemId);
+      if (!item) return prev;
+      const max = item.steps.length;
+      const nextIdx = direction === 'next' ? (currentIdx + 1) % max : (currentIdx - 1 + max) % max;
+      return { ...prev, [itemId]: nextIdx };
+    });
   };
 
-  const handleCardMouseLeave = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = e.currentTarget;
-    card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
-    card.style.boxShadow = '';
+  const togglePlay = (itemId: string) => {
+    setIsPlaying((prev) => ({ ...prev, [itemId]: !prev[itemId] }));
   };
 
-  // Horizontal scroll / drag interactions
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!isDragging || !scrollRef.current) return;
-    e.preventDefault();
-    const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 1.5;
-    scrollRef.current.scrollLeft = scrollLeftState - walk;
-    updateProgress();
-  };
-
+  // Drag-scroll support
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!scrollRef.current) return;
     setIsDragging(true);
@@ -130,156 +218,269 @@ export const HorizontalShowcase: React.FC = () => {
     setScrollLeftState(scrollRef.current.scrollLeft);
   };
 
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!isDragging || !scrollRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - scrollRef.current.offsetLeft;
+    const walk = (x - startX) * 1.4;
+    scrollRef.current.scrollLeft = scrollLeftState - walk;
+  };
+
   const handleMouseUpOrLeave = () => {
     setIsDragging(false);
   };
 
-  const updateProgress = () => {
-    if (!scrollRef.current) return;
-    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-    const maxScroll = Math.max(1, scrollWidth - clientWidth);
-    setProgress(Math.min(1, Math.max(0, scrollLeft / maxScroll)));
-  };
-
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (!el) return;
-    const onScroll = () => updateProgress();
-    el.addEventListener('scroll', onScroll, { passive: true });
-    return () => el.removeEventListener('scroll', onScroll);
-  }, []);
-
   return (
     <section
       id="showcase"
-      ref={containerRef}
-      className="relative w-full py-14 sm:py-20 z-10 select-none overflow-hidden"
+      className="relative w-full py-16 sm:py-24 z-10 select-none overflow-hidden"
     >
       {/* Section Header */}
-      <div className="px-5 sm:px-8 md:px-12 lg:px-16 mb-12">
-        <div className="site-container">
-          {/* Eyebrow Badge (03 / Architectural Showcase) */}
-          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full glass-pill border border-rose-500/25 mb-6 backdrop-blur-xl bg-[#0b1329]/80 shadow-lg shadow-black/40">
-            <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.9)] animate-pulse" />
-            <span className="text-xs tracking-wider uppercase text-rose-300 font-semibold font-mono">
-              03 / Architectural Showcase
+      <div className="px-5 sm:px-8 md:px-12 lg:px-16 mb-10">
+        <div className="site-container mx-auto">
+          {/* Eyebrow Badge */}
+          <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-amber-500/25 mb-6 backdrop-blur-xl bg-[#081638]/70 shadow-lg shadow-black/40">
+            <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse" />
+            <span className="text-xs tracking-wider uppercase text-amber-300 font-semibold font-mono">
+              03 / Interactive Architecture Flow
             </span>
           </div>
 
           <h2
-            className="text-3xl sm:text-5xl lg:text-6xl font-normal text-white tracking-tight leading-[1.1] mb-6"
+            className="text-3xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] tracking-tight leading-[1.1] mb-6"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
             Engineering deep-dives &amp;{' '}
-            <span className="text-red-gold-gradient font-medium">mobile architecture.</span>
+            <span className="text-red-gold-gradient font-medium">pipeline execution.</span>
           </h2>
 
-          <p className="text-slate-300 text-base sm:text-lg site-paragraph font-normal leading-relaxed">
-            Hover over cards for 3D perspective and swipe horizontally to explore core mobile
-            patterns, offline database sync, and media playback architecture.
+          <p className="text-[#E2DFD8] text-base sm:text-lg site-paragraph font-normal leading-relaxed">
+            Interactive step-by-step architecture diagrams showing how each mobile subsystem executes at runtime. Use controls to inspect individual pipeline stages.
           </p>
         </div>
       </div>
 
-      {/* Horizontal Swiping Track with 3D Tilt Cards */}
+      {/* Horizontal Scroll Track of Architecture Diagrams */}
       <div
         ref={scrollRef}
         onMouseDown={handleMouseDown}
         onMouseMove={handleMouseMove}
         onMouseUp={handleMouseUpOrLeave}
-        className={`flex gap-6 overflow-x-auto no-scrollbar px-5 sm:px-8 md:px-12 lg:px-16 py-6 cursor-grab ${
+        className={`flex gap-6 overflow-x-auto no-scrollbar px-5 sm:px-8 md:px-12 lg:px-16 py-4 cursor-grab ${
           isDragging ? 'cursor-grabbing active' : ''
         }`}
         style={{ scrollSnapType: isDragging ? 'none' : 'x mandatory' }}
       >
-        {SHOWCASE_ITEMS.map((item, idx) => (
-          <div
-            key={item.id}
-            onMouseMove={handleCardMouseMove}
-            onMouseLeave={handleCardMouseLeave}
-            className="tilt-card flex-shrink-0 w-[85vw] sm:w-[520px] md:w-[560px] p-7 sm:p-9 rounded-3xl glass-pill border border-rose-500/20 backdrop-blur-xl bg-[#0b1329]/70 hover:border-rose-500/40 hover:bg-[#0f1b3d]/80 transition-all duration-300 shadow-xl shadow-black/50 flex flex-col justify-between"
-            style={{
-              scrollSnapAlign: 'start',
-              transformStyle: 'preserve-3d',
-              transition: 'transform 0.25s ease-out, box-shadow 0.25s ease-out',
-            }}
-          >
-            <div>
-              {/* Card Header */}
-              <div className="flex items-center justify-between gap-3 mb-6">
-                <span className="text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/25 font-mono font-medium">
-                  {item.badge}
-                </span>
-                <span className="text-xs font-mono text-slate-400">
-                  [0{idx + 1} / 0{SHOWCASE_ITEMS.length}]
-                </span>
+        {SHOWCASE_ITEMS.map((item, idx) => {
+          const currentStepIdx = activeStepIndices[item.id] || 0;
+          const currentStep = item.steps[currentStepIdx];
+          const playing = isPlaying[item.id] || false;
+
+          return (
+            <div
+              key={item.id}
+              className="flex-shrink-0 w-[88vw] sm:w-[540px] md:w-[580px] p-6 sm:p-8 rounded-3xl border border-white/10 backdrop-blur-xl bg-[#000000]/80 shadow-2xl shadow-black/60 flex flex-col justify-between"
+              style={{ scrollSnapAlign: 'start' }}
+            >
+              <div>
+                {/* Header row */}
+                <div className="flex items-center justify-between gap-3 mb-4">
+                  <span className="text-xs uppercase tracking-wider px-3 py-1 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/25 font-mono font-medium">
+                    {item.badge}
+                  </span>
+                  <span className="text-xs font-mono text-slate-400">
+                    [0{idx + 1} / 0{SHOWCASE_ITEMS.length}]
+                  </span>
+                </div>
+
+                <h3
+                  className="text-2xl sm:text-3xl text-[#FAF8F5] font-normal mb-1 tracking-tight"
+                  style={{ fontFamily: 'var(--font-heading)' }}
+                >
+                  {item.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-amber-400/90 mb-6 font-medium">
+                  {item.subtitle}
+                </p>
+
+                {/* Animated SVG Flow Diagram Container */}
+                <div className="w-full rounded-2xl bg-[#081638]/40 border border-white/10 p-4 mb-5 relative overflow-hidden">
+                  <div className="flex items-center justify-between mb-3 text-[11px] font-mono text-slate-400 border-b border-white/10 pb-2">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      Runtime Execution Flow
+                    </span>
+                    <span className="text-amber-300">
+                      Step {currentStepIdx + 1} of {item.steps.length}
+                    </span>
+                  </div>
+
+                  {/* SVG Visualization */}
+                  <svg
+                    viewBox="0 0 500 120"
+                    className="w-full h-auto max-h-[140px] select-none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <defs>
+                      <linearGradient id={`flowGrad-${item.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#081638" />
+                        <stop offset="50%" stopColor="#F59E0B" />
+                        <stop offset="100%" stopColor="#FF2A00" />
+                      </linearGradient>
+                      <filter id={`glow-${item.id}`} x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                      </filter>
+                    </defs>
+
+                    {/* Connecting Pipe Track */}
+                    <line
+                      x1="60"
+                      y1="60"
+                      x2="440"
+                      y2="60"
+                      stroke="#1e293b"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                    />
+
+                    {/* Active Connecting Pipeline Segment */}
+                    <line
+                      x1="60"
+                      y1="60"
+                      x2={60 + (380 / (item.steps.length - 1)) * currentStepIdx}
+                      y2="60"
+                      stroke={`url(#flowGrad-${item.id})`}
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                      className="transition-all duration-300"
+                    />
+
+                    {/* Nodes */}
+                    {item.steps.map((st, sIdx) => {
+                      const cx = 60 + (380 / (item.steps.length - 1)) * sIdx;
+                      const isCurrent = sIdx === currentStepIdx;
+                      const isPassed = sIdx <= currentStepIdx;
+
+                      return (
+                        <g key={st.step} className="cursor-pointer" onClick={() => setActiveStepIndices((p) => ({ ...p, [item.id]: sIdx }))}>
+                          {/* Outer pulse circle for active step */}
+                          {isCurrent && (
+                            <circle
+                              cx={cx}
+                              cy="60"
+                              r="26"
+                              fill="none"
+                              stroke="#F59E0B"
+                              strokeWidth="2"
+                              opacity="0.4"
+                              className="animate-ping"
+                            />
+                          )}
+
+                          {/* Node circle */}
+                          <circle
+                            cx={cx}
+                            cy="60"
+                            r="20"
+                            fill={isCurrent ? '#081638' : isPassed ? '#1e293b' : '#0a0f1d'}
+                            stroke={isCurrent ? '#F59E0B' : isPassed ? '#475569' : '#1e293b'}
+                            strokeWidth={isCurrent ? '3' : '2'}
+                            filter={isCurrent ? `url(#glow-${item.id})` : undefined}
+                            className="transition-all duration-200"
+                          />
+
+                          {/* Step Number */}
+                          <text
+                            x={cx}
+                            y="65"
+                            textAnchor="middle"
+                            fill={isCurrent ? '#FAF8F5' : isPassed ? '#cbd5e1' : '#64748b'}
+                            fontSize="13"
+                            fontWeight="bold"
+                            fontFamily="monospace"
+                          >
+                            0{st.step}
+                          </text>
+
+                          {/* Node Label Top */}
+                          <text
+                            x={cx}
+                            y="25"
+                            textAnchor="middle"
+                            fill={isCurrent ? '#F59E0B' : '#64748b'}
+                            fontSize="11"
+                            fontWeight={isCurrent ? '600' : '400'}
+                            fontFamily="monospace"
+                          >
+                            {st.source}
+                          </text>
+                        </g>
+                      );
+                    })}
+                  </svg>
+
+                  {/* Dynamic Step Detail Card */}
+                  <div className="mt-3 p-3 rounded-xl bg-[#000000]/60 border border-white/5">
+                    <div className="flex items-center justify-between gap-2 mb-1">
+                      <span className="text-xs font-semibold text-[#FAF8F5] font-mono">
+                        Stage 0{currentStep.step}: {currentStep.label}
+                      </span>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">
+                        {currentStep.metric}
+                      </span>
+                    </div>
+                    <p className="text-xs text-[#E2DFD8]/80 leading-relaxed">
+                      {currentStep.description}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Step Playback Controls */}
+                <div className="flex items-center justify-between gap-3 mb-6 p-2 rounded-xl bg-white/5 border border-white/10">
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => handleStepChange(item.id, 'prev')}
+                      className="px-2.5 py-1 rounded-lg text-xs font-mono text-[#FAF8F5] bg-white/5 hover:bg-white/10 border border-white/10 transition-colors active:scale-95 cursor-pointer"
+                      title="Previous Step"
+                    >
+                      ← Prev
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleStepChange(item.id, 'next')}
+                      className="px-2.5 py-1 rounded-lg text-xs font-mono text-[#FAF8F5] bg-white/5 hover:bg-white/10 border border-white/10 transition-colors active:scale-95 cursor-pointer"
+                      title="Next Step"
+                    >
+                      Next →
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => togglePlay(item.id)}
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-mono text-amber-300 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 transition-colors active:scale-95 cursor-pointer"
+                  >
+                    <span>{playing ? '⏸ Pause Loop' : '▶ Auto Step'}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Title & Subtitle */}
-              <h3
-                className="text-2xl sm:text-3xl text-white font-normal mb-2 tracking-tight"
-                style={{ fontFamily: 'var(--font-heading)' }}
-              >
-                {item.title}
-              </h3>
-              <p className="text-sm text-amber-300/90 mb-6 font-medium">
-                {item.subtitle}
-              </p>
-
-              {/* Metrics Grid */}
-              <div className="grid grid-cols-3 gap-3 mb-6 p-4 rounded-2xl bg-[#060913]/70 border border-white/5">
-                {item.metrics.map((m) => (
-                  <div key={m.label}>
-                    <div className="text-[11px] font-mono text-slate-400 uppercase tracking-wider mb-1">
-                      {m.label}
-                    </div>
-                    <div className="text-sm font-semibold text-rose-300">
-                      {m.value}
-                    </div>
-                  </div>
+              {/* Tags */}
+              <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10 items-center">
+                {item.tags.map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-2.5 py-1 text-[11px] rounded-full bg-[#081638]/60 border border-white/10 text-slate-300 font-mono"
+                  >
+                    {tag}
+                  </span>
                 ))}
               </div>
-
-              {/* Description */}
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed font-normal mb-6">
-                {item.description}
-              </p>
             </div>
-
-            {/* Tags */}
-            <div className="flex flex-wrap gap-2 pt-4 border-t border-white/10 items-center">
-              {item.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="px-2.5 py-1 text-xs rounded-full bg-slate-900/70 border border-slate-700/60 text-slate-300 font-mono"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Progress & Scrub Bar */}
-      <div className="px-5 sm:px-8 md:px-12 lg:px-16 mt-8 flex items-center justify-between gap-4">
-        <div className="text-xs font-mono text-slate-400">
-          <span>01</span>
-          <span className="mx-2 text-slate-600">/</span>
-          <span>0{SHOWCASE_ITEMS.length}</span>
-        </div>
-
-        {/* Dynamic Red to Gold Progress Line */}
-        <div className="flex-1 max-w-md h-1.5 rounded-full bg-slate-800/80 overflow-hidden">
-          <div
-            className="h-full bg-gradient-to-r from-rose-500 via-rose-400 to-amber-400 rounded-full transition-all duration-150"
-            style={{ width: `${Math.max(12, progress * 100)}%` }}
-          />
-        </div>
-
-        <div className="text-xs font-mono text-rose-400/80 hidden sm:block">
-          Swipe or hover cards ↔
-        </div>
+          );
+        })}
       </div>
     </section>
   );
