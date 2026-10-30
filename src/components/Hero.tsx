@@ -104,6 +104,11 @@ export const Hero: React.FC = () => {
           aria-hidden="true"
           className="pointer-none absolute inset-0 bg-[radial-gradient(ellipse_75%_65%_at_45%_50%,rgba(0,0,0,0.1),#000000_90%)]"
         />
+        {/* Bottom smooth dissolution into pitch black */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-44 sm:h-64 bg-gradient-to-b from-transparent via-black/50 to-[#000000]"
+        />
       </div>
 
       <div className="site-container relative z-30 max-w-2xl">
@@ -194,8 +199,7 @@ export const Hero: React.FC = () => {
         </div>
       </div>
 
-      {/* Clean Horizontal Separation Line */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#FF2A00]/30 via-[#F59E0B]/20 to-transparent pointer-events-none" />
+      {/* Seamless transition into next section (no horizontal divider lines) */}
     </section>
   );
 };
