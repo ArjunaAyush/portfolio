@@ -1,4 +1,38 @@
 import React, { useState } from 'react';
+import { AnimatedTooltip } from './ui/animated-tooltip';
+
+const COLLABORATORS = [
+  {
+    id: 1,
+    name: 'Ayush Kumar',
+    designation: 'Native Android Developer',
+    image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    id: 2,
+    name: 'Aman Sharma',
+    designation: 'Coroutines & Systems Peer',
+    image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    id: 3,
+    name: 'Priya Patel',
+    designation: 'Design Systems & UI Contributor',
+    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    id: 4,
+    name: 'Rohan Verma',
+    designation: 'Open Source Collaborator',
+    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+  },
+  {
+    id: 5,
+    name: 'Siddharth Rao',
+    designation: 'Kotlin & Architecture Peer',
+    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+  },
+];
 
 export const Hero: React.FC = () => {
   const [copied, setCopied] = useState(false);
@@ -119,6 +153,20 @@ export const Hero: React.FC = () => {
             </svg>
             <span>{copied ? 'Copied to Clipboard! ✓' : 'ayushkumar134go@gmail.com'}</span>
           </button>
+        </div>
+
+        {/* Collaborative Social Proof with Animated Tooltip */}
+        <div className="mt-9 pt-6 border-t border-rose-500/15 flex flex-wrap items-center gap-4">
+          <div className="flex items-center pl-2">
+            <AnimatedTooltip items={COLLABORATORS} />
+          </div>
+          <div className="text-xs text-slate-300">
+            <p className="font-medium text-white flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+              Active in Open Source &amp; Hackathons
+            </p>
+            <p className="text-[11px] text-slate-400">Collaborating with university peers &amp; Android engineers</p>
+          </div>
         </div>
       </div>
     </section>

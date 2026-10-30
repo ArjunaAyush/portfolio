@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { PROJECTS_DATA, type SeniorProjectData } from '../data/projectsData';
 import { ProjectModal } from './ProjectModal';
+import { ShaderAnimation } from './ui/shader-animation';
 
 export const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<SeniorProjectData | null>(null);
@@ -28,10 +29,53 @@ export const Projects: React.FC = () => {
           <span className="text-red-gold-gradient font-medium">native implementations.</span>
         </h2>
 
-        <p className="text-slate-300 text-base sm:text-lg mb-12 font-normal leading-relaxed site-paragraph">
+        <p className="text-slate-300 text-base sm:text-lg mb-10 font-normal leading-relaxed site-paragraph">
           Real Android applications built with modern Kotlin, Jetpack Compose, Room SQLite,
           and AndroidX Media3. Open-source source code and technical architecture breakdowns below.
         </p>
+
+        {/* Real-time Shader & Graphics Engine Lab (Bicolor Accents & Stateful Interactive Canvas) */}
+        <div className="relative mb-12 rounded-3xl overflow-hidden border border-rose-500/25 bg-[#0b1329]/80 shadow-2xl shadow-black/60 group">
+          <div className="relative h-[260px] sm:h-[320px] w-full overflow-hidden">
+            <ShaderAnimation className="w-full h-full" />
+
+            {/* Gradient Mask for Readability */}
+            <div className="absolute inset-0 bg-gradient-to-t from-[#060913] via-[#060913]/50 to-transparent pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#060913]/80 via-transparent to-transparent pointer-events-none" />
+
+            {/* Content Overlay */}
+            <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between pointer-events-none">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-rose-500/20 border border-rose-500/40 backdrop-blur-md">
+                  <span className="w-2 h-2 rounded-full bg-rose-500 animate-ping" />
+                  <span className="text-[11px] font-mono uppercase text-rose-300 font-semibold tracking-wider">
+                    Interactive Shader Canvas
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="px-2.5 py-1 text-[11px] rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono">
+                    WebGL &amp; AGSL
+                  </span>
+                  <span className="px-2.5 py-1 text-[11px] rounded-full bg-rose-500/10 border border-rose-500/30 text-rose-300 font-mono">
+                    120 FPS Real-time
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h3
+                  className="text-2xl sm:text-3xl font-medium text-white tracking-tight mb-2"
+                  style={{ fontFamily: 'var(--font-heading)' }}
+                >
+                  Native Graphics &amp; Shader Engineering
+                </h3>
+                <p className="text-xs sm:text-sm text-slate-300 max-w-xl leading-relaxed">
+                  Mathematical raymarching and custom procedural shaders powering low-latency visual feedback, responsive audio-reactive surfaces, and GPU-accelerated canvas animations.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Projects Stack */}
         <div className="space-y-10 w-full">

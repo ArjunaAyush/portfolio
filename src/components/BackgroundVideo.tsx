@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CHARACTER_FRAME_FILES } from '../data/characterFrameManifest';
+import { BackgroundCubesGrid } from './ui/background-cubes-grid';
 
 export const BackgroundVideo: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const posterRef = useRef<HTMLImageElement>(null);
+  const cubesRef = useRef<HTMLDivElement>(null);
 
   // Preloaded image bitmaps / images
   const framesRef = useRef<(ImageBitmap | HTMLImageElement)[]>([]);
@@ -322,6 +324,12 @@ export const BackgroundVideo: React.FC = () => {
           : 1 - Math.pow(-2 * normalized + 2, 3) / 2;
 
       renderTransform(eased);
+
+      if (cubesRef.current) {
+        const cubesOpacity = Math.max(0, 1 - normalized * 2.2);
+        cubesRef.current.style.opacity = cubesOpacity.toFixed(3);
+        cubesRef.current.style.pointerEvents = cubesOpacity > 0.05 ? 'auto' : 'none';
+      }
     };
 
     let rafId: number;
@@ -375,6 +383,30 @@ export const BackgroundVideo: React.FC = () => {
         aria-hidden="true"
       />
 
+      {/* 1b. 3D Perspective Cubes Grid (Hero section backdrop, behind character, royal palette) */}
+      <div
+        ref={cubesRef}
+        className="fixed inset-0 z-0 pointer-events-none select-none transition-opacity duration-300 overflow-hidden"
+        aria-hidden="true"
+      >
+        <BackgroundCubesGrid
+          variant="perspective"
+          backgroundColor="#060913"
+          baseColor="#0f172a"
+          waveColor="#ff2a00"
+          glow={0.75}
+          amplitude={0.35}
+          tilt={0.65}
+          idleRipples={true}
+          className="w-full h-full"
+        />
+        {/* Subtle radial blend so cubes grid merges into the atmosphere */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_65%_55%_at_50%_50%,rgba(6,9,19,0.3),#060913_90%)]"
+        />
+      </div>
+
       {/* 
         2. Character Layer:
         - Mobile & Desktop: preserves original sizing and bottom-right anchor.
@@ -383,7 +415,7 @@ export const BackgroundVideo: React.FC = () => {
       */}
       <div
         ref={containerRef}
-        className="fixed bottom-0 z-0 pointer-events-none select-none will-change-transform"
+        className="fixed bottom-0 z-[2] pointer-events-none select-none will-change-transform"
         style={{
           right: 'clamp(24px, 4vw, 70px)',
           width: 'clamp(368px, 39vw, 748px)',

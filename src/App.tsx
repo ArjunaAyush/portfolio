@@ -16,12 +16,15 @@ import { type SeniorProjectData } from './data/projectsData';
 export const App: React.FC = () => {
   const [modalProject, setModalProject] = useState<SeniorProjectData | null>(null);
 
-  // Initialize Lenis smooth scroll
+  // Initialize Lenis smooth scroll with forced smoothing parameters
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.2,
+      duration: 1.4,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1.2,
+      infinite: false,
     });
 
     let rafId: number;
@@ -34,8 +37,28 @@ export const App: React.FC = () => {
     // Make lenis available on window for scroll triggers
     (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
 
+    // Intercept in-page anchor clicks to enforce smooth Lenis inertia everywhere
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a');
+      if (!target) return;
+      const href = target.getAttribute('href');
+      if (href && href.startsWith('#') && href.length > 1) {
+        const el = document.querySelector(href);
+        if (el) {
+          e.preventDefault();
+          lenis.scrollTo(href, {
+            offset: -40,
+            duration: 1.4,
+            easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+          });
+        }
+      }
+    };
+    document.addEventListener('click', handleAnchorClick);
+
     return () => {
       cancelAnimationFrame(rafId);
+      document.removeEventListener('click', handleAnchorClick);
       lenis.destroy();
     };
   }, []);
