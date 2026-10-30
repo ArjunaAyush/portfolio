@@ -29,45 +29,49 @@ export const BlurredTransition: React.FC<BlurredTransitionProps> = ({
 
       {/* Tier 1: Wide low-frequency blur (4px) */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 will-change-transform"
         style={{
           backdropFilter: 'blur(4px)',
           WebkitBackdropFilter: 'blur(4px)',
           maskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, black 20%, black 80%, transparent 100%)',
+          transform: 'translate3d(0, 0, 0)',
         }}
       />
 
       {/* Tier 2: Mid blur (12px) */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 will-change-transform"
         style={{
           backdropFilter: 'blur(12px)',
           WebkitBackdropFilter: 'blur(12px)',
           maskImage: 'linear-gradient(to bottom, transparent 15%, black 35%, black 65%, transparent 85%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 15%, black 35%, black 65%, transparent 85%)',
+          transform: 'translate3d(0, 0, 0)',
         }}
       />
 
       {/* Tier 3: High blur (24px) */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 will-change-transform"
         style={{
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
           maskImage: 'linear-gradient(to bottom, transparent 25%, black 42%, black 58%, transparent 75%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 25%, black 42%, black 58%, transparent 75%)',
+          transform: 'translate3d(0, 0, 0)',
         }}
       />
 
       {/* Tier 4: Maximum focal diffusion (48px) at epicenter */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 will-change-transform"
         style={{
           backdropFilter: 'blur(48px)',
           WebkitBackdropFilter: 'blur(48px)',
           maskImage: 'linear-gradient(to bottom, transparent 35%, black 50%, transparent 65%)',
           WebkitMaskImage: 'linear-gradient(to bottom, transparent 35%, black 50%, transparent 65%)',
+          transform: 'translate3d(0, 0, 0)',
         }}
       />
 

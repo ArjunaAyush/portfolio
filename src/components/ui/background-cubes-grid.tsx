@@ -132,7 +132,12 @@ function createIsometricScene(
   const SETTLE_RAMP = 0.8;
   const FLAT = 0.004;
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    powerPreference: "high-performance",
+    stencil: false,
+  });
   renderer.setClearColor(topColor);
   const scene = new THREE.Scene();
 
@@ -206,7 +211,7 @@ function createIsometricScene(
   const resize = () => {
     const width = container.clientWidth;
     const viewHeight = container.clientHeight;
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.25));
     renderer.setSize(width, viewHeight, false);
 
     // A tile's top face spans sqrt(2) world units across the screen.
@@ -413,8 +418,22 @@ function IsometricCubes({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const updateRef = useRef<((delta: number) => void) | null>(null);
+  const isVisibleRef = useRef<boolean>(true);
   const reduceMotion = useReducedMotion();
   const idle = idleRipples && !reduceMotion;
+
+  // Pause rendering when scrolled out of view to save GPU cycles
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
@@ -440,7 +459,9 @@ function IsometricCubes({
   }, [cellSize, gap, topColor, leftColor, rightColor, amplitude, speed, damping, idle, idleDelay, glowColor, glow]);
 
   useAnimationFrame((_, delta) => {
-    updateRef.current?.(Math.min(delta / 1000, 0.1));
+    if (isVisibleRef.current) {
+      updateRef.current?.(Math.min(delta / 1000, 0.1));
+    }
   });
 
   return (
@@ -627,7 +648,12 @@ function createPerspectiveScene(
   };
   updateCamera(0, 0);
 
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+  const renderer = new THREE.WebGLRenderer({
+    canvas,
+    antialias: true,
+    powerPreference: "high-performance",
+    stencil: false,
+  });
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.3;
   renderer.shadowMap.enabled = true;
@@ -806,7 +832,7 @@ function createPerspectiveScene(
   const resizeObserver = new ResizeObserver(() => {
     width = container.clientWidth;
     height = container.clientHeight;
-    pixelRatio = Math.min(window.devicePixelRatio, 2);
+    pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
     camera.aspect = width / height;
     camera.updateProjectionMatrix();
     renderer.setSize(width, height, false);

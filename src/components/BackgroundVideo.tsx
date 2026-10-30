@@ -119,14 +119,14 @@ export const BackgroundVideo: React.FC = () => {
     };
   }, []);
 
-  // 2. High-performance Delta-Time RAF Gaze Animation Loop (Desktop Only)
+  // 2. High-performance Event-Driven Gaze Animation Loop (Desktop Only)
   useEffect(() => {
-    let animId: number;
+    let animId = 0;
+    let isRunning = false;
 
     const tick = (now: number) => {
-      // Completely disable frame animation on normal mobile viewports
       if (checkIsMobile()) {
-        animId = requestAnimationFrame(tick);
+        isRunning = false;
         return;
       }
 
@@ -139,6 +139,8 @@ export const BackgroundVideo: React.FC = () => {
       if (Math.abs(diff) > 0.0005) {
         const factor = 1 - Math.exp(-18 * dt);
         currentNormXRef.current += diff * factor;
+      } else {
+        currentNormXRef.current = targetNormXRef.current;
       }
 
       // Map progress [0..1] to frame index [0..totalFrames - 1]
@@ -162,24 +164,41 @@ export const BackgroundVideo: React.FC = () => {
         }
       }
 
+      // If settled and drawn, sleep the loop to consume 0% idle CPU
+      if (
+        Math.abs(targetNormXRef.current - currentNormXRef.current) < 0.0005 &&
+        targetFrameIdx === lastDrawnFrameRef.current
+      ) {
+        isRunning = false;
+        return;
+      }
+
       animId = requestAnimationFrame(tick);
     };
 
-    animId = requestAnimationFrame(tick);
+    const wakeGaze = () => {
+      if (checkIsMobile()) return;
+      if (!isRunning) {
+        isRunning = true;
+        lastTimeRef.current = performance.now();
+        animId = requestAnimationFrame(tick);
+      }
+    };
 
     const handlePointerMove = (e: MouseEvent) => {
       if (checkIsMobile()) return;
       const x = e.clientX / window.innerWidth;
       const normX = Math.max(0, Math.min(1, (x - 0.4) / (0.9 - 0.2)));
       targetNormXRef.current = normX;
+      wakeGaze();
     };
 
     const handleTouchMove = (e: TouchEvent) => {
-      // Touch-driven head turn is disabled on mobile
       if (checkIsMobile()) return;
       if (e.touches.length > 0) {
         const normX = Math.max(0, Math.min(1, e.touches[0].clientX / window.innerWidth));
         targetNormXRef.current = normX;
+        wakeGaze();
       }
     };
 
@@ -187,27 +206,24 @@ export const BackgroundVideo: React.FC = () => {
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
 
     return () => {
-      cancelAnimationFrame(animId);
+      if (animId) cancelAnimationFrame(animId);
       window.removeEventListener('mousemove', handlePointerMove);
       window.removeEventListener('touchmove', handleTouchMove);
     };
   }, []);
 
-  // 3. Scroll-Linked Travel with Smooth Docking at Footer & Zoom Compensation
+  // 3. Scroll-Linked Travel with Smooth Docking at Footer & Zoom Compensation (Reflow-Free)
   useEffect(() => {
     // Detect desktop browser zoom level reliably across Chrome, Safari, Firefox & Edge
     const getZoomFactor = (): number => {
       if (typeof window === 'undefined') return 1.0;
 
-      // 1. VisualViewport scale (pinch-zoom or mobile page zoom)
       if (window.visualViewport && window.visualViewport.scale && window.visualViewport.scale !== 1) {
         return window.visualViewport.scale;
       }
 
-      // 2. Desktop browser page zoom (Ctrl/Cmd +/-)
       const currentDpr = window.devicePixelRatio || 1.0;
 
-      // Check session calibration
       try {
         const saved = sessionStorage.getItem('portfolio_baseline_dpr');
         if (saved) {
@@ -221,16 +237,14 @@ export const BackgroundVideo: React.FC = () => {
         // sessionStorage unavailable
       }
 
-      // Deduce native display baseline:
-      // On macOS, built-in and external Retina displays have native DPR = 2.0.
-      // On Windows / Linux, standard displays have native DPR = 1.0 (or 1.25/1.5/2.0).
-      const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
+      const isMac =
+        typeof navigator !== 'undefined' &&
+        /Mac|iPhone|iPad|iPod/.test(navigator.platform || navigator.userAgent);
       let native = isMac ? 2.0 : 1.0;
       if (!isMac) {
         if (currentDpr >= 1.75) {
           native = 2.0;
         } else if (currentDpr >= 1.2 && currentDpr < 1.75) {
-          // Snap to closest Windows scaling (1.25, 1.5) or 1.0
           native = currentDpr >= 1.4 ? 1.5 : 1.25;
         } else {
           native = 1.0;
@@ -242,26 +256,40 @@ export const BackgroundVideo: React.FC = () => {
 
     const getZoomScaleMultiplier = (): number => {
       const zoom = getZoomFactor();
-
-      // Requirements:
-      // 1. At or below 100% zoom (60%, 70%, 80%, 90%, 100%):
-      //    The character's scale must NEVER change due to browser zoom.
-      //    Always use exactly 1.0000 multiplier (100% baseline scale).
-      // 2. Above 100% zoom (110%, 120%, 130%):
-      //    Progressively reduce character size:
-      //    110% zoom (1.10) -> ~10% smaller (0.90)
-      //    120% zoom (1.20) -> ~20% smaller (0.80)
-      //    130% zoom (1.30) -> ~30% smaller (0.70)
       if (zoom <= 1.0) {
         return 1.0;
       }
-
       const zoomReduction = zoom - 1.0;
-      const multiplier = Math.max(0.5, 1.0 - zoomReduction);
-      return multiplier;
+      return Math.max(0.5, 1.0 - zoomReduction);
     };
 
-    const renderTransform = (progress: number) => {
+    // Cached layout metrics to completely eliminate layout thrashing during scroll
+    let cachedTravelRange = window.innerHeight * 1.5;
+    let cachedFooterAbsoluteTop = 999999;
+
+    const measureLayout = () => {
+      const winHeight = window.innerHeight;
+      const scrollY = window.scrollY;
+
+      const projectsEl = document.getElementById('projects');
+      if (projectsEl) {
+        const rect = projectsEl.getBoundingClientRect();
+        const elementAbsoluteTop = rect.top + scrollY;
+        cachedTravelRange = Math.max(winHeight * 0.5, elementAbsoluteTop - winHeight * 0.3);
+      } else {
+        cachedTravelRange = winHeight * 1.5;
+      }
+
+      const footerEl = document.querySelector('footer');
+      if (footerEl) {
+        const fRect = footerEl.getBoundingClientRect();
+        cachedFooterAbsoluteTop = fRect.top + scrollY;
+      } else {
+        cachedFooterAbsoluteTop = 999999;
+      }
+    };
+
+    const renderTransform = (progress: number, scrollY: number) => {
       const el = containerRef.current;
       if (!el) return;
 
@@ -270,32 +298,24 @@ export const BackgroundVideo: React.FC = () => {
       const isMobile = width < 768;
       const isTablet = width >= 768 && width < 1024;
 
-      // On normal mobile viewports: scaled down so it doesn't clash with content
       if (isMobile) {
         el.style.transform = 'translate3d(0px, 0px, 0) scale(0.85)';
         el.style.opacity = '1';
         return;
       }
 
-      // Zoom compensation multiplier (applies above 100% zoom on desktop)
       const zoomMultiplier = getZoomScaleMultiplier();
-
-      // Scaled down so it never clashes with content (docking from 0.96 down to ~0.64)
       const scaleDelta = isTablet ? 0.35 : 0.32;
       const baseScale = 0.96 - progress * scaleDelta;
       const scale = baseScale * zoomMultiplier;
 
-      // Vertical translation to anchor above footer on scroll
+      // Zero-reflow docking calculation using cachedFooterAbsoluteTop
       let ty = 0;
-      const footerEl = document.querySelector('footer');
-      if (footerEl) {
-        const footerRect = footerEl.getBoundingClientRect();
-        if (footerRect.top < height) {
-          ty = footerRect.top - height;
-        }
+      const footerScreenTop = cachedFooterAbsoluteTop - scrollY;
+      if (footerScreenTop < height) {
+        ty = footerScreenTop - height;
       }
 
-      // Horizontal slight docking drift to stay snugly in the bottom-right
       const maxTx = 24;
       const tx = progress * maxTx;
 
@@ -305,40 +325,58 @@ export const BackgroundVideo: React.FC = () => {
 
     const updateScrollProgress = () => {
       const scrollY = window.scrollY;
-      const winHeight = window.innerHeight;
-
-      const projectsEl = document.getElementById('projects');
-      let travelRange = winHeight * 1.5;
-      if (projectsEl) {
-        const rect = projectsEl.getBoundingClientRect();
-        const elementAbsoluteTop = rect.top + scrollY;
-        travelRange = Math.max(winHeight * 0.5, elementAbsoluteTop - winHeight * 0.3);
-      }
-
-      const normalized = Math.min(1, Math.max(0, scrollY / travelRange));
+      const normalized = Math.min(1, Math.max(0, scrollY / cachedTravelRange));
       const eased =
         normalized < 0.5
           ? 4 * normalized * normalized * normalized
           : 1 - Math.pow(-2 * normalized + 2, 3) / 2;
 
-      renderTransform(eased);
+      renderTransform(eased, scrollY);
     };
 
-    let rafId: number;
-    const tickScroll = () => {
+    // Scheduled frame-locked scroll handler: runs only on active scroll, zero idle RAF
+    let scrollRafId = 0;
+    const scheduleScrollUpdate = () => {
+      if (!scrollRafId) {
+        scrollRafId = requestAnimationFrame(() => {
+          scrollRafId = 0;
+          updateScrollProgress();
+        });
+      }
+    };
+
+    // Initial measurement
+    measureLayout();
+    updateScrollProgress();
+
+    const handleResize = () => {
+      measureLayout();
       updateScrollProgress();
-      rafId = requestAnimationFrame(tickScroll);
     };
-    rafId = requestAnimationFrame(tickScroll);
 
-    window.addEventListener('resize', updateScrollProgress);
+    window.addEventListener('scroll', scheduleScrollUpdate, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
     if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', updateScrollProgress);
+      window.visualViewport.addEventListener('resize', handleResize);
     }
-    // Also listen to resolution media query changes (triggers on desktop browser zoom Cmd +/-)
+
+    // Connect Lenis smooth scroll listener if available
+    const lenis = (
+      window as unknown as {
+        __lenis?: {
+          on: (event: string, cb: () => void) => void;
+          off: (event: string, cb: () => void) => void;
+        };
+      }
+    ).__lenis;
+
+    if (lenis && typeof lenis.on === 'function') {
+      lenis.on('scroll', scheduleScrollUpdate);
+    }
+
     let mq: MediaQueryList | null = null;
     const updateMq = () => {
-      updateScrollProgress();
+      handleResize();
       if (typeof window !== 'undefined' && window.matchMedia) {
         if (mq) mq.removeEventListener('change', updateMq);
         mq = window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`);
@@ -348,13 +386,17 @@ export const BackgroundVideo: React.FC = () => {
     updateMq();
 
     return () => {
-      cancelAnimationFrame(rafId);
-      window.removeEventListener('resize', updateScrollProgress);
+      if (scrollRafId) cancelAnimationFrame(scrollRafId);
+      window.removeEventListener('scroll', scheduleScrollUpdate);
+      window.removeEventListener('resize', handleResize);
       if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', updateScrollProgress);
+        window.visualViewport.removeEventListener('resize', handleResize);
       }
       if (mq) {
         mq.removeEventListener('change', updateMq);
+      }
+      if (lenis && typeof lenis.off === 'function') {
+        lenis.off('scroll', scheduleScrollUpdate);
       }
     };
   }, []);
