@@ -14,39 +14,41 @@ export const Projects: React.FC = () => {
   return (
     <section
       id="projects"
-      className="relative w-full py-16 sm:py-24 px-5 sm:px-8 md:px-12 lg:px-16 overflow-hidden"
+      className="relative w-full py-20 sm:py-28 px-5 sm:px-8 md:px-12 lg:px-16 overflow-hidden z-10 isolate"
     >
-      {/* Ambient Looping WebGL Shader Backdrop */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden -z-10" aria-hidden="true">
-        <ShaderAnimation className="w-full h-full opacity-35" />
-        {/* Dark Tint & Gradients for Crisp Text Legibility */}
-        <div className="absolute inset-0 bg-[#060913]/85 backdrop-blur-[1px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#060913] via-transparent to-[#060913]" />
+      {/* Ambient Looping WebGL Shader Backdrop (Brilliantly Visible at z-0) */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
+        <ShaderAnimation className="w-full h-full opacity-80" />
+        {/* Subtle Dark Vignette: Keeps Shader Lines Pulsing while Text Remains 100% Legible */}
+        <div className="absolute inset-0 bg-black/40 backdrop-blur-[1px]" />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-transparent to-[#000000]" />
       </div>
 
-      <div className="site-container relative z-10">
-        {/* Eyebrow Tag */}
-        <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full glass-pill border border-rose-500/25 mb-6 backdrop-blur-xl bg-[#0b1329]/80 shadow-lg shadow-black/40">
-          <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.9)] animate-pulse" />
-          <span className="text-xs tracking-wider uppercase text-rose-300 font-semibold font-mono">
+      <div className="site-container relative z-20">
+        {/* Eyebrow Tag (Amber Red + Milk) */}
+        <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#FF2A00]/30 mb-6 backdrop-blur-xl bg-black/75 shadow-lg shadow-black/50">
+          <span className="w-2 h-2 rounded-full bg-[#FF2A00] shadow-[0_0_8px_rgba(255,42,0,0.9)] animate-pulse" />
+          <span className="text-xs tracking-wider uppercase text-[#FAF8F5] font-semibold font-mono">
             02 / Selected Projects
           </span>
         </div>
 
-        {/* Section Heading */}
+        {/* Section Heading (Milk Typography) */}
         <h2
-          className="text-3xl sm:text-5xl lg:text-6xl font-normal text-white tracking-tight leading-[1.1] mb-4"
+          className="text-3xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] tracking-tight leading-[1.1] mb-4"
           style={{ fontFamily: 'var(--font-heading)' }}
         >
           Selected projects &amp;{' '}
-          <span className="text-red-gold-gradient font-medium">native implementations.</span>
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A00] via-[#E11D48] to-[#F59E0B] font-medium">
+            native implementations.
+          </span>
         </h2>
 
-        <p className="text-slate-300 text-sm sm:text-base mb-10 max-w-xl font-normal leading-relaxed site-paragraph">
+        <p className="text-[#E2DFD8] text-sm sm:text-base mb-10 max-w-xl font-normal leading-relaxed site-paragraph">
           Production Android applications engineered with modern Kotlin, Jetpack Compose, Room SQLite, and AndroidX Media3.
         </p>
 
-        {/* Compact, Expandable Projects Stack */}
+        {/* Compact, Expandable Projects Stack (Show, Don't Tell) */}
         <div className="space-y-6 w-full">
           {PROJECTS_DATA.map((project, idx) => {
             const isExpanded = expandedId === project.id;
@@ -54,15 +56,15 @@ export const Projects: React.FC = () => {
             return (
               <div
                 key={project.id || project.title}
-                className="p-6 sm:p-7 rounded-3xl border border-rose-500/20 backdrop-blur-xl bg-[#08122a]/80 hover:border-rose-500/40 hover:bg-[#0b1736]/90 transition-all duration-300 shadow-xl shadow-black/50"
+                className="p-6 sm:p-8 rounded-3xl border border-white/10 backdrop-blur-2xl bg-black/80 hover:border-[#FF2A00]/40 transition-all duration-300 shadow-2xl shadow-black/80 group"
               >
                 {/* Header Row: Index, Category, GitHub link */}
-                <div className="flex items-center justify-between gap-3 mb-3">
+                <div className="flex items-center justify-between gap-3 mb-4">
                   <div className="flex items-center gap-2.5">
-                    <span className="text-xs font-mono text-slate-400">
+                    <span className="text-xs font-mono text-stone-400">
                       [0{idx + 1}]
                     </span>
-                    <span className="text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/25 font-mono font-medium">
+                    <span className="text-xs uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FF2A00]/15 text-[#FF2A00] border border-[#FF2A00]/30 font-mono font-medium">
                       {project.category}
                     </span>
                   </div>
@@ -71,10 +73,10 @@ export const Projects: React.FC = () => {
                     href={project.repoUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-xs text-slate-300 hover:text-amber-300 font-medium transition-colors underline underline-offset-4"
+                    className="inline-flex items-center gap-1.5 text-xs text-[#FAF8F5] hover:text-[#F59E0B] font-medium transition-colors underline underline-offset-4"
                     aria-label={`View ${project.title} on GitHub`}
                   >
-                    <span>GitHub</span>
+                    <span>View Repository</span>
                     <svg
                       width="13"
                       height="13"
@@ -84,72 +86,93 @@ export const Projects: React.FC = () => {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
+                      className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                     >
                       <path d="M7 17L17 7M17 7H7M17 7V17" />
                     </svg>
                   </a>
                 </div>
 
-                {/* Title & Concise Summary */}
+                {/* Title & Tagline */}
                 <h3
-                  className="text-2xl sm:text-3xl text-white font-normal mb-1 tracking-tight"
+                  className="text-2xl sm:text-3xl text-[#FAF8F5] font-normal mb-1 tracking-tight"
                   style={{ fontFamily: 'var(--font-heading)' }}
                 >
                   {project.title}
                 </h3>
-                <p className="text-xs sm:text-sm text-amber-300/90 mb-3 font-medium font-mono">
+                <p className="text-xs sm:text-sm text-[#F59E0B] mb-3 font-medium font-mono">
                   {project.tagline}
                 </p>
 
-                {/* Compact Description (Trimmed, Non-Redundant) */}
-                <p className="text-sm text-slate-300 leading-relaxed mb-4 font-normal">
+                {/* Compact 1-line Summary */}
+                <p className="text-sm text-[#E2DFD8] leading-relaxed mb-4 font-normal">
                   {project.description}
                 </p>
+
+                {/* SHOW, DON'T TELL: Live Telemetry Metrics Pill Bar */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
+                  <div className="px-3 py-2 rounded-xl bg-stone-950/80 border border-white/5 flex flex-col">
+                    <span className="text-[10px] font-mono uppercase text-stone-400">Cold TTID</span>
+                    <span className="text-xs font-semibold text-[#FF2A00] font-mono">{project.metrics.startupTime}</span>
+                  </div>
+                  <div className="px-3 py-2 rounded-xl bg-stone-950/80 border border-white/5 flex flex-col">
+                    <span className="text-[10px] font-mono uppercase text-stone-400">Jank Rate</span>
+                    <span className="text-xs font-semibold text-emerald-400 font-mono">{project.metrics.jankRate}</span>
+                  </div>
+                  <div className="px-3 py-2 rounded-xl bg-stone-950/80 border border-white/5 flex flex-col">
+                    <span className="text-[10px] font-mono uppercase text-stone-400">Memory PSS</span>
+                    <span className="text-xs font-semibold text-[#F59E0B] font-mono">{project.metrics.memoryPss}</span>
+                  </div>
+                  <div className="px-3 py-2 rounded-xl bg-stone-950/80 border border-white/5 flex flex-col">
+                    <span className="text-[10px] font-mono uppercase text-stone-400">APK Size</span>
+                    <span className="text-xs font-semibold text-cyan-400 font-mono">{project.metrics.apkSize}</span>
+                  </div>
+                </div>
 
                 {/* Tech Stack Pills (Always Visible, Compact) */}
                 <div className="flex flex-wrap gap-1.5 items-center mb-5">
                   {project.techStack.map((tech) => (
                     <span
                       key={tech}
-                      className="px-2.5 py-0.5 text-[11px] rounded-full bg-slate-900/80 border border-slate-700/60 text-slate-300 font-mono"
+                      className="px-2.5 py-0.5 text-[11px] rounded-full bg-stone-950 border border-stone-800 text-[#FAF8F5] font-mono"
                     >
                       {tech}
                     </span>
                   ))}
                 </div>
 
-                {/* Expandable Architecture & Highlights Tray */}
+                {/* SHOW, DON'T TELL: Expandable Visual Architecture & Specs Tray */}
                 {isExpanded && (
-                  <div className="pt-5 pb-3 border-t border-rose-500/15 space-y-5 animate-in fade-in duration-300">
-                    {/* Performance Metrics */}
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                      <div className="p-3 rounded-xl bg-slate-900/60 border border-white/5">
-                        <div className="text-[10px] font-mono uppercase text-slate-400">Cold Startup</div>
-                        <div className="text-sm font-semibold text-rose-300">{project.metrics.startupTime}</div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-900/60 border border-white/5">
-                        <div className="text-[10px] font-mono uppercase text-slate-400">Jank Rate</div>
-                        <div className="text-sm font-semibold text-emerald-400">{project.metrics.jankRate}</div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-900/60 border border-white/5">
-                        <div className="text-[10px] font-mono uppercase text-slate-400">Memory PSS</div>
-                        <div className="text-sm font-semibold text-amber-300">{project.metrics.memoryPss}</div>
-                      </div>
-                      <div className="p-3 rounded-xl bg-slate-900/60 border border-white/5">
-                        <div className="text-[10px] font-mono uppercase text-slate-400">APK Size</div>
-                        <div className="text-sm font-semibold text-sky-300">{project.metrics.apkSize}</div>
+                  <div className="pt-5 pb-3 border-t border-white/10 space-y-5 animate-in fade-in duration-300">
+                    {/* Visual Architecture Flow Diagram (SHOW, DON'T TELL) */}
+                    <div>
+                      <h4 className="text-xs uppercase tracking-wider text-stone-400 font-mono mb-2.5">
+                        Clean Architecture Pipeline (UDF Flow)
+                      </h4>
+                      <div className="p-3.5 rounded-2xl bg-stone-950/90 border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-mono text-[#FAF8F5]">
+                        <div className="px-3 py-1.5 rounded-lg bg-[#FF2A00]/20 border border-[#FF2A00]/40 text-[#FF2A00]">
+                          Presentation (Compose UI)
+                        </div>
+                        <span className="text-stone-500">──StateFlow──▶</span>
+                        <div className="px-3 py-1.5 rounded-lg bg-[#F59E0B]/20 border border-[#F59E0B]/40 text-[#F59E0B]">
+                          Domain (UseCases)
+                        </div>
+                        <span className="text-stone-500">──Coroutines──▶</span>
+                        <div className="px-3 py-1.5 rounded-lg bg-cyan-500/20 border border-cyan-500/40 text-cyan-300">
+                          Data (Room + Media3)
+                        </div>
                       </div>
                     </div>
 
-                    {/* Architecture Highlights */}
+                    {/* Engineering Highlights */}
                     <div>
-                      <h4 className="text-xs uppercase tracking-wider text-slate-400 font-mono mb-2">
-                        Key Architecture Highlights
+                      <h4 className="text-xs uppercase tracking-wider text-stone-400 font-mono mb-2">
+                        Core Engineering Highlights
                       </h4>
                       <ul className="space-y-1.5">
                         {project.contributions.slice(0, 3).map((c, i) => (
-                          <li key={i} className="flex items-start gap-2 text-xs sm:text-sm text-slate-300 leading-relaxed">
-                            <span className="text-rose-500 shrink-0 mt-0.5">✦</span>
+                          <li key={i} className="flex items-start gap-2 text-xs sm:text-sm text-[#E2DFD8] leading-relaxed">
+                            <span className="text-[#FF2A00] shrink-0 mt-0.5">✦</span>
                             <span>{c}</span>
                           </li>
                         ))}
@@ -158,15 +181,15 @@ export const Projects: React.FC = () => {
                   </div>
                 )}
 
-                {/* Action Bar: Expand Toggle & Full Specs Modal Trigger */}
-                <div className="flex flex-wrap items-center gap-3 pt-3 border-t border-white/5">
+                {/* Action Bar: Stateful Expand & Modal Trigger */}
+                <div className="flex flex-wrap items-center gap-3 pt-4 border-t border-white/10">
                   <button
                     type="button"
                     onClick={() => toggleExpand(project.id)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 hover:border-rose-500/30 text-xs font-mono text-slate-300 hover:text-white transition-all duration-200 active:scale-95 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 hover:border-[#FF2A00]/40 text-xs font-mono text-[#FAF8F5] transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     <span>{isExpanded ? 'Collapse Details' : 'Expand Architecture'}</span>
-                    <span className="text-rose-400 transition-transform duration-200">
+                    <span className="text-[#FF2A00] transition-transform duration-200">
                       {isExpanded ? '▴' : '▾'}
                     </span>
                   </button>
@@ -174,7 +197,7 @@ export const Projects: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setSelectedProject(project)}
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 hover:border-rose-500/60 text-xs font-mono text-rose-200 hover:text-white transition-all duration-200 active:scale-95 cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#FF2A00]/20 hover:bg-[#FF2A00]/30 border border-[#FF2A00]/40 hover:border-[#FF2A00]/70 text-xs font-mono text-[#FAF8F5] hover:text-white transition-all duration-200 active:scale-95 cursor-pointer"
                   >
                     <span>⚡ Tech Specs Modal</span>
                   </button>

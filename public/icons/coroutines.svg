@@ -1,0 +1,14 @@
+<svg viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="coro-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F59E0B"/>
+      <stop offset="50%" stop-color="#E11D48"/>
+      <stop offset="100%" stop-color="#7F52FF"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#0C0E14"/>
+  <rect x="2" y="2" width="124" height="124" rx="26" fill="none" stroke="#F59E0B" stroke-opacity="0.3" stroke-width="2"/>
+  <path d="M64 28C44.1 28 28 44.1 28 64C28 83.9 44.1 100 64 100C83.9 100 100 83.9 100 64" fill="none" stroke="url(#coro-grad)" stroke-width="8" stroke-linecap="round"/>
+  <path d="M64 42C51.8 42 42 51.8 42 64C42 76.2 51.8 86 64 86C76.2 86 86 76.2 86 64" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" stroke-dasharray="8 6"/>
+  <circle cx="64" cy="64" r="7" fill="#F59E0B"/>
+</svg>

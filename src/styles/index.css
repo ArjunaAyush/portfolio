@@ -24,18 +24,19 @@ html.lenis, html.lenis body {
   --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   
-  /* Color Tokens: Royal Red (Primary Accent), Royal Gold (Secondary), Deep Navy (Tertiary) */
-  --accent-red: #e11d48;
-  --accent-red-glow: rgba(225, 29, 72, 0.45);
-  --secondary-gold: #f59e0b;
-  --secondary-gold-glow: rgba(245, 158, 11, 0.35);
-  --tertiary-navy: #0b1329;
+  /* Milk + Black + Amber Red Design Tokens */
+  --color-milk: #FAF8F5;
+  --color-milk-muted: #E2DFD8;
+  --color-black: #000000;
+  --color-amber-red: #FF2A00;
+  --color-amber-gold: #F59E0B;
+  --color-deep-navy: #081638;
 }
 
 body {
   font-family: var(--font-body);
-  background-color: #060913;
-  color: #f1f5f9;
+  background-color: #000000;
+  color: #FAF8F5;
   margin: 0;
   padding: 0;
   overflow-x: hidden;

@@ -61,7 +61,7 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div className="relative w-full min-h-screen bg-[#060913] text-slate-100 selection:bg-rose-500 selection:text-white font-sans">
+    <div className="relative w-full min-h-screen bg-[#000000] text-[#FAF8F5] selection:bg-[#FF2A00] selection:text-white font-sans">
       {/* 
         Scroll-responsive 3D animated character layer (fixed, z-index: 20):
         Desktop: smooth head-turn with scroll-linked docking.

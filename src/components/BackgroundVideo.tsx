@@ -361,15 +361,15 @@ export const BackgroundVideo: React.FC = () => {
 
   return (
     <>
-      {/* 1. Regal Tri-Color Atmospheric Background */}
+      {/* 1. Atmospheric Pure Black + Amber Red Background */}
       <div
-        className="fixed inset-0 z-0 pointer-events-none select-none bg-[#060913]"
+        className="fixed inset-0 z-0 pointer-events-none select-none bg-[#000000]"
         style={{
           background: `
-            radial-gradient(circle at 76% 36%, rgba(255, 42, 0, 0.79) 0%, rgba(91, 0, 0, 0.32) 44%, transparent 65%),
-            radial-gradient(circle at 74% 50%, rgba(245, 158, 11, 0.18) 0%, rgba(217, 119, 6, 0.08) 28%, transparent 60%),
-            radial-gradient(circle at 20% 75%, rgba(8, 37, 117, 0.85) 0%, rgba(6, 9, 19, 0.6) 45%, transparent 75%),
-            radial-gradient(circle at 50% 15%, rgba(11, 19, 41, 0.7) 0%, #060913 60%, #03060f 100%)
+            radial-gradient(circle at 76% 36%, rgba(255, 42, 0, 0.45) 0%, rgba(91, 0, 0, 0.15) 44%, transparent 65%),
+            radial-gradient(circle at 74% 50%, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.05) 28%, transparent 60%),
+            radial-gradient(circle at 20% 75%, rgba(8, 22, 56, 0.5) 0%, rgba(5, 5, 8, 0.4) 45%, transparent 75%),
+            radial-gradient(circle at 50% 15%, rgba(10, 15, 30, 0.4) 0%, #000000 60%, #000000 100%)
           `,
         }}
         aria-hidden="true"
