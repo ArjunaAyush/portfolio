@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "anti-ai-slop-writing": {
+      "source": "jalaalrd/anti-ai-slop-writing",
+      "sourceType": "github",
+      "skillPath": "skills/anti-ai-slop-writing/SKILL.md",
+      "computedHash": "894339ca94325115c37cb7be1f703cee6fd2d840d3971b765e0db7f3613c4fa9"
+    }
+  }
+}

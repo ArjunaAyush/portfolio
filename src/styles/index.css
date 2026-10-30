@@ -20,17 +20,45 @@ html.lenis, html.lenis body {
 }
 
 :root {
-  --font-heading: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
-  --font-body: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  /* Typography Tokens: 80% Bricolage Grotesque, 15% Redaction 70, 5% Redaction 100 */
+  --font-heading: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-body: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-redaction-70: 'Redaction 70', serif;
+  --font-redaction-100: 'Redaction 100', serif;
   --font-mono: 'JetBrains Mono', monospace;
   
-  /* Milk + Black + Amber Red Design Tokens */
+  /* Modern Minimal Web Tokens (Milk + Pitch Black + Warm Amber) */
   --color-milk: #FAF8F5;
   --color-milk-muted: #E2DFD8;
   --color-black: #000000;
   --color-amber-red: #FF2A00;
   --color-amber-gold: #F59E0B;
   --color-deep-navy: #081638;
+}
+
+.font-redaction-70 {
+  font-family: var(--font-redaction-70);
+  font-weight: 400;
+  letter-spacing: -0.015em;
+}
+
+.font-redaction-100 {
+  font-family: var(--font-redaction-100);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+}
+
+.font-bricolage {
+  font-family: var(--font-body);
+}
+
+/* Apple Design tactile response: immediate feedback on pointer-down */
+.apple-press {
+  transition: transform 100ms cubic-bezier(0.2, 0, 0, 1), opacity 100ms ease-out;
+}
+
+.apple-press:active {
+  transform: scale(0.97);
 }
 
 body {

@@ -32,25 +32,27 @@ export const Contact: React.FC = () => {
       className="relative w-full py-16 sm:py-24 px-5 sm:px-8 md:px-12 lg:px-16 z-10"
     >
       <div className="site-container mx-auto">
-        {/* Eyebrow Tag */}
+        {/* Eyebrow Tag: Redaction 70 */}
         <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-amber-500/25 mb-6 backdrop-blur-xl bg-[#081638]/70 shadow-lg shadow-black/40">
           <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse" />
-          <span className="text-xs tracking-wider uppercase text-amber-300 font-semibold font-mono">
-            06 / Connect &amp; Collaborate
+          <span className="font-redaction-70 text-xs tracking-wider uppercase text-amber-300">
+            06 / Contact
           </span>
         </div>
 
-        {/* Section Heading */}
+        {/* Section Heading: Bricolage base + Redaction 100 punchline */}
         <h2
           className="text-3xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] tracking-tight leading-[1.1] mb-6"
           style={{ fontFamily: 'var(--font-heading)' }}
         >
-          Let's connect &amp; engineer{' '}
-          <span className="text-red-gold-gradient font-medium">great Android software.</span>
+          Let's build{' '}
+          <span className="font-redaction-100 italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A00] to-[#F59E0B]">
+            together.
+          </span>
         </h2>
 
         <p className="text-[#E2DFD8] text-base sm:text-lg mb-12 font-normal leading-relaxed site-paragraph">
-          Available for native Android engineering roles, internships, open-source initiatives, and architectural discussions.
+          Open to Android developer roles, summer internships, and open-source collaborations. Feel free to send me a note.
         </p>
 
         {/* Contact Methods Cards */}

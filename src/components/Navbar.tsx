@@ -47,7 +47,7 @@ export const Navbar: React.FC = () => {
           aria-label="ArjunaAyush Home"
         >
           <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse" />
-          <span className="text-[14px] sm:text-[15px] font-semibold tracking-tight text-[#FAF8F5] group-hover:text-amber-300 transition-colors">
+          <span className="font-redaction-70 text-[15px] sm:text-[16px] tracking-tight text-[#FAF8F5] group-hover:text-amber-300 transition-colors">
             Arjuna<span className="text-amber-400">Ayush</span>
           </span>
         </a>

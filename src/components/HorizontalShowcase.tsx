@@ -238,11 +238,11 @@ export const HorizontalShowcase: React.FC = () => {
       {/* Section Header */}
       <div className="px-5 sm:px-8 md:px-12 lg:px-16 mb-10">
         <div className="site-container mx-auto">
-          {/* Eyebrow Badge */}
+          {/* Eyebrow Badge: Redaction 70 */}
           <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-amber-500/25 mb-6 backdrop-blur-xl bg-[#081638]/70 shadow-lg shadow-black/40">
             <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse" />
-            <span className="text-xs tracking-wider uppercase text-amber-300 font-semibold font-mono">
-              03 / Interactive Architecture Flow
+            <span className="font-redaction-70 text-xs tracking-wider uppercase text-amber-300">
+              03 / Subsystems
             </span>
           </div>
 
@@ -250,12 +250,14 @@ export const HorizontalShowcase: React.FC = () => {
             className="text-3xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] tracking-tight leading-[1.1] mb-6"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
-            Engineering deep-dives &amp;{' '}
-            <span className="text-red-gold-gradient font-medium">pipeline execution.</span>
+            How the mobile pipeline runs at{' '}
+            <span className="font-redaction-100 italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A00] to-[#F59E0B]">
+              runtime.
+            </span>
           </h2>
 
           <p className="text-[#E2DFD8] text-base sm:text-lg site-paragraph font-normal leading-relaxed">
-            Interactive step-by-step architecture diagrams showing how each mobile subsystem executes at runtime. Use controls to inspect individual pipeline stages.
+            Step through the Media3 buffer engine, reactive state flow, and local SQLite sync. Use controls to inspect individual stages.
           </p>
         </div>
       </div>

@@ -125,25 +125,27 @@ export const Skills: React.FC = () => {
       className="relative w-full py-16 sm:py-24 px-5 sm:px-8 md:px-12 lg:px-16 z-10"
     >
       <div className="site-container mx-auto">
-        {/* Eyebrow Tag */}
+        {/* Eyebrow Tag: Redaction 70 */}
         <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-amber-500/25 mb-6 backdrop-blur-xl bg-[#081638]/70 shadow-lg shadow-black/40">
           <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse" />
-          <span className="text-xs tracking-wider uppercase text-amber-300 font-semibold font-mono">
-            04 / Tech Stack &amp; Capabilities
+          <span className="font-redaction-70 text-xs tracking-wider uppercase text-amber-300">
+            04 / Stack
           </span>
         </div>
 
-        {/* Section Heading */}
+        {/* Section Heading: Bricolage base + Redaction 100 punchline */}
         <h2
           className="text-3xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] tracking-tight leading-[1.1] mb-6"
           style={{ fontFamily: 'var(--font-heading)' }}
         >
-          Native toolchain &amp;{' '}
-          <span className="text-red-gold-gradient font-medium">production telemetry.</span>
+          Tools and libraries I write{' '}
+          <span className="font-redaction-100 italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A00] to-[#F59E0B]">
+            daily.
+          </span>
         </h2>
 
         <p className="text-[#E2DFD8] text-base sm:text-lg mb-10 font-normal leading-relaxed site-paragraph">
-          Bento grid of core technologies used across production Android codebases. Click any card to inspect architectural proof and metrics.
+          Bento grid of core technologies used in production. Click any card to inspect benchmarks and architectural choices.
         </p>
 
         {/* Category Filter Pills */}

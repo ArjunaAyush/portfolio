@@ -28,27 +28,27 @@ export const Projects: React.FC = () => {
       </div>
 
       <div className="site-container relative z-20">
-        {/* Eyebrow Tag (Amber Red + Milk) */}
+        {/* Eyebrow Tag: Redaction 70 */}
         <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#FF2A00]/30 mb-6 backdrop-blur-xl bg-black/75 shadow-lg shadow-black/50">
           <span className="w-2 h-2 rounded-full bg-[#FF2A00] shadow-[0_0_8px_rgba(255,42,0,0.9)] animate-pulse" />
-          <span className="text-xs tracking-wider uppercase text-[#FAF8F5] font-semibold font-mono">
-            02 / Selected Projects
+          <span className="font-redaction-70 text-xs tracking-wider uppercase text-[#FAF8F5]">
+            02 / Projects
           </span>
         </div>
 
-        {/* Section Heading (Milk Typography) */}
+        {/* Section Heading: Bricolage base + Redaction 100 punchline */}
         <h2
           className="text-3xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] tracking-tight leading-[1.1] mb-4"
           style={{ fontFamily: 'var(--font-heading)' }}
         >
-          Selected projects &amp;{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A00] via-[#E11D48] to-[#F59E0B] font-medium">
-            native implementations.
+          Apps built for{' '}
+          <span className="font-redaction-100 italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A00] via-[#E11D48] to-[#F59E0B]">
+            production.
           </span>
         </h2>
 
         <p className="text-[#E2DFD8] text-sm sm:text-base mb-10 max-w-xl font-normal leading-relaxed site-paragraph">
-          Production Android applications engineered with modern Kotlin, Jetpack Compose, Room SQLite, and AndroidX Media3. Tap any card to flip between telemetry benchmarks and architecture diagrams.
+          Native Android apps tested on physical devices. Tap any card to flip between startup benchmarks and architecture pipelines.
         </p>
 
         {/* SHOW, DON'T TELL: Interactive Flip Cards Stack */}

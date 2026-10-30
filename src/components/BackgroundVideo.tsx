@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { CHARACTER_FRAME_FILES } from '../data/characterFrameManifest';
+import { HalftoneMatrix } from './ui/halftone-matrix';
 
 export const BackgroundVideo: React.FC = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -269,10 +270,9 @@ export const BackgroundVideo: React.FC = () => {
       const isMobile = width < 768;
       const isTablet = width >= 768 && width < 1024;
 
-      // On normal mobile viewports: retain the original size (scale 1.3) and full visibility
-      // The avatar remains completely stable and static across all scrolling and viewport zoom calculations
+      // On normal mobile viewports: scaled down so it doesn't clash with content
       if (isMobile) {
-        el.style.transform = 'translate3d(0px, 0px, 0) scale(1)';
+        el.style.transform = 'translate3d(0px, 0px, 0) scale(0.85)';
         el.style.opacity = '1';
         return;
       }
@@ -280,9 +280,9 @@ export const BackgroundVideo: React.FC = () => {
       // Zoom compensation multiplier (applies above 100% zoom on desktop)
       const zoomMultiplier = getZoomScaleMultiplier();
 
-      // Scale factor reduction from 1.3 down to docked size on scroll
-      const scaleDelta = isTablet ? 0.62 : 0.58;
-      const baseScale = 1.3 - progress * scaleDelta;
+      // Scaled down so it never clashes with content (docking from 0.96 down to ~0.64)
+      const scaleDelta = isTablet ? 0.35 : 0.32;
+      const baseScale = 0.96 - progress * scaleDelta;
       const scale = baseScale * zoomMultiplier;
 
       // Vertical translation to anchor above footer on scroll
@@ -375,25 +375,40 @@ export const BackgroundVideo: React.FC = () => {
         aria-hidden="true"
       />
 
+      {/* Dotted Halftone Moving Resizing Matrix Overlay */}
+      <HalftoneMatrix className="fixed inset-0 z-0 opacity-40 mix-blend-screen" />
+
       {/* 
         2. Character Layer:
-        - Mobile & Desktop: preserves original sizing and bottom-right anchor.
-        - Mobile: remains completely static at its original scale without scroll-shrinking.
-        - Desktop: smooth head-turn animation with scroll-linked docking & browser zoom responsiveness.
+        - Scaled down so it gracefully complements without clashing with content.
+        - Mobile: static neutral appearance.
+        - Desktop: smooth head-turn animation with scroll-docking.
       */}
       <div
         ref={containerRef}
         className="fixed bottom-0 z-20 pointer-events-none select-none will-change-transform"
         style={{
-          right: 'clamp(24px, 4vw, 70px)',
-          width: 'clamp(368px, 39vw, 748px)',
+          right: 'clamp(16px, 3.5vw, 64px)',
+          width: 'clamp(260px, 28vw, 500px)',
           aspectRatio: '1000 / 1030',
           transformOrigin: 'bottom right',
-          transform: 'translate3d(0px, 0px, 0) scale(1.3000)',
+          transform: 'translate3d(0px, 0px, 0) scale(0.96)',
           opacity: 1,
         }}
         aria-hidden="true"
       >
+        {/* Luminous Warm Gradient Glow behind Avatar */}
+        <div
+          className="absolute -inset-10 -z-10 rounded-full blur-3xl pointer-events-none transition-opacity duration-500"
+          style={{
+            background:
+              'radial-gradient(circle at 50% 50%, rgba(255, 42, 0, 0.45) 0%, rgba(245, 158, 11, 0.3) 35%, rgba(8, 22, 56, 0.2) 65%, transparent 80%)',
+            transform: 'scale(1.2) translate3d(0, 3%, 0)',
+            opacity: 0.9,
+          }}
+          aria-hidden="true"
+        />
+
         {/* Instant fallback poster while GPU decodes frames */}
         <img
           ref={posterRef}

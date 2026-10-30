@@ -1,34 +1,40 @@
 import React, { useState } from 'react';
+import { triggerHaptic } from '../utils/haptics';
 
 const CAPABILITY_PILLARS = [
   {
-    label: 'Native Android SDK',
+    label: 'Android SDK',
     metric: 'API 26 – 35',
-    detail: 'Targeting modern Android 15 with backwards compatibility to 95%+ devices',
-    status: 'Active',
+    detail: 'Full Android 15 target with backwards compatibility down to Android 8.0 Oreo.',
+    status: 'Verified',
   },
   {
     label: 'Jetpack Compose',
     metric: '120 FPS UI',
-    detail: 'Hardware-accelerated declarative layouts with smart recomposition skipping',
+    detail: 'Composable stability contracts with smart recomposition skipping on high-refresh screens.',
     status: 'Production',
   },
   {
     label: 'Media3 / ExoPlayer',
-    metric: '< 150ms Reel TTFB',
-    detail: 'SurfaceView texture caching and low-latency continuous feed playback',
-    status: 'Engineered',
+    metric: '< 150ms TTFB',
+    detail: 'Pre-fetched chunk caching and SurfaceView texture binding for zero buffer lag.',
+    status: 'Benchmarked',
   },
   {
-    label: 'Offline-First DB',
-    metric: 'Room + Flow',
-    detail: 'Local SQLite source-of-truth with automated background WorkManager sync',
-    status: 'Validated',
+    label: 'Room Database',
+    metric: 'SQLite WAL',
+    detail: 'Offline-first tables with Write-Ahead Logging and background WorkManager synchronization.',
+    status: 'Tested',
   },
 ];
 
 export const About: React.FC = () => {
   const [activePillar, setActivePillar] = useState<number | null>(null);
+
+  const handleSelectPillar = (index: number) => {
+    triggerHaptic();
+    setActivePillar((prev) => (prev === index ? null : index));
+  };
 
   return (
     <section
@@ -36,44 +42,46 @@ export const About: React.FC = () => {
       className="relative w-full py-16 sm:py-24 px-5 sm:px-8 md:px-12 lg:px-16 z-10"
     >
       <div className="site-container mx-auto">
-        {/* Eyebrow Tag */}
+        {/* Eyebrow Tag: Redaction 70 */}
         <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-amber-500/25 mb-6 backdrop-blur-xl bg-[#081638]/70 shadow-lg shadow-black/40">
           <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse" />
-          <span className="text-xs tracking-wider uppercase text-amber-300 font-semibold font-mono">
-            01 / Identity &amp; Systems Focus
+          <span className="font-redaction-70 text-xs tracking-wider uppercase text-amber-300">
+            01 / Background
           </span>
         </div>
 
-        {/* Section Heading */}
+        {/* Section Heading: Bricolage base + Redaction 100 punchline */}
         <h2
           className="text-3xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] tracking-tight leading-[1.1] mb-8"
           style={{ fontFamily: 'var(--font-heading)' }}
         >
-          Building high-performance Android systems with{' '}
-          <span className="text-red-gold-gradient font-medium">architectural rigor.</span>
+          Engineering native Android on real{' '}
+          <span className="font-redaction-100 italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A00] to-[#F59E0B]">
+            hardware.
+          </span>
         </h2>
 
-        {/* Concise High-Signal Narrative */}
+        {/* Narrative (Clean, Human, Zero AI Slop) */}
         <div className="space-y-4 text-[#E2DFD8] text-base sm:text-lg leading-relaxed font-normal site-paragraph max-w-3xl mb-12">
           <p>
-            I'm <strong className="text-[#FAF8F5] font-semibold">Ayush Kumar</strong> (<span className="text-amber-400 font-mono font-medium">@ArjunaAyush</span>), an Information Technology undergraduate at <strong className="text-[#FAF8F5] font-semibold">GGV Bilaspur</strong> specializing in modern, offline-first Android architecture.
+            I'm <strong className="text-[#FAF8F5] font-medium">Ayush Kumar</strong> (<span className="text-amber-400 font-mono font-medium">@ArjunaAyush</span>), an IT sophomore at <strong className="text-[#FAF8F5] font-medium">GGV Bilaspur</strong>.
           </p>
           <p>
-            I engineer native mobile experiences prioritizing instantaneous UI responsiveness, reliable local caching, and predictable state streams across the entire Android lifecycle.
+            I got tired of slow hybrid apps stuttering on modest phones, so I stick strictly to native Android. I write Kotlin with Coroutines to keep heavy work off the UI thread, Room SQLite for reliable offline data, and AndroidX Media3 for instant short-form video streaming.
           </p>
         </div>
 
-        {/* Show, Don't Tell: Visual Interactive Architecture Pillars */}
+        {/* Visual Capability Pillars: Apple-design tactile feedback */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
           {CAPABILITY_PILLARS.map((pillar, index) => {
             const isSelected = activePillar === index;
             return (
               <div
                 key={pillar.label}
-                onClick={() => setActivePillar(isSelected ? null : index)}
-                className={`group p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${
+                onClick={() => handleSelectPillar(index)}
+                className={`apple-press p-5 rounded-2xl border transition-all duration-200 cursor-pointer ${
                   isSelected
-                    ? 'border-amber-500/50 bg-[#081638]/90 shadow-lg shadow-amber-500/10'
+                    ? 'border-amber-500/50 bg-[#081638]/90 shadow-lg shadow-amber-500/10 scale-[1.01]'
                     : 'border-white/10 bg-[#000000]/80 hover:border-amber-500/30 hover:bg-[#081638]/40'
                 }`}
               >
@@ -101,21 +109,21 @@ export const About: React.FC = () => {
           })}
         </div>
 
-        {/* Academic & Hardware Telemetry Strip */}
+        {/* Hardware & University Base Strip */}
         <div className="mt-8 p-5 rounded-2xl border border-white/10 bg-[#000000]/70 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate-400">
           <div className="flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
-            <span className="text-[#FAF8F5] font-medium">Institution:</span>
+            <span className="text-[#FAF8F5] font-medium">Campus:</span>
             <span>Guru Ghasidas Central University (GGV), Bilaspur</span>
           </div>
 
           <div className="flex items-center gap-4">
             <div>
-              <span className="text-[#FAF8F5] font-medium">Class:</span> 2nd Year B.Tech IT
+              <span className="text-[#FAF8F5] font-medium">Program:</span> 2nd Year B.Tech IT
             </div>
             <span className="text-slate-700">•</span>
             <div>
-              <span className="text-[#FAF8F5] font-medium">Open Source:</span>{' '}
+              <span className="text-[#FAF8F5] font-medium">GitHub:</span>{' '}
               <a
                 href="https://github.com/arjunaayush"
                 target="_blank"

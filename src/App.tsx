@@ -12,6 +12,7 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { ProjectModal } from './components/ProjectModal';
 import { NotFound } from './components/NotFound';
+import { BlurredTransition } from './components/ui/blurred-transition';
 import { type SeniorProjectData } from './data/projectsData';
 
 export const App: React.FC = () => {
@@ -77,22 +78,31 @@ export const App: React.FC = () => {
         {/* Hero Section */}
         <Hero />
 
-        {/* 01 / Identity & Background */}
+        {/* Apple-style Blurred Transition: Hero -> Gradient Section */}
+        <BlurredTransition intensity="medium" />
+
+        {/* 01 / Background */}
         <About />
 
-        {/* 02 / Selected Projects */}
+        {/* Apple-style Blurred Transition: Gradient Section -> Shader Section */}
+        <BlurredTransition intensity="deep" />
+
+        {/* 02 / Projects */}
         <Projects />
 
-        {/* 03 / Architectural Showcase */}
+        {/* Apple-style Blurred Transition: Shader Section -> Subsystems */}
+        <BlurredTransition intensity="medium" />
+
+        {/* 03 / Subsystems */}
         <HorizontalShowcase />
 
-        {/* 04 / Skills & Technologies */}
+        {/* 04 / Stack */}
         <Skills />
 
-        {/* 05 / Hackathons & Collaboration */}
+        {/* 05 / Sprints */}
         <Hackathons />
 
-        {/* 06 / Get In Touch */}
+        {/* 06 / Contact */}
         <Contact />
       </main>
 

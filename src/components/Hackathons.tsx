@@ -71,25 +71,27 @@ export const Hackathons: React.FC = () => {
       className="relative w-full py-16 sm:py-24 px-5 sm:px-8 md:px-12 lg:px-16 z-10"
     >
       <div className="site-container mx-auto">
-        {/* Eyebrow Tag */}
+        {/* Eyebrow Tag: Redaction 70 */}
         <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-amber-500/25 mb-6 backdrop-blur-xl bg-[#081638]/70 shadow-lg shadow-black/40">
           <span className="w-2 h-2 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.9)] animate-pulse" />
-          <span className="text-xs tracking-wider uppercase text-amber-300 font-semibold font-mono">
-            05 / Hackathons &amp; Initiatives
+          <span className="font-redaction-70 text-xs tracking-wider uppercase text-amber-300">
+            05 / Sprints
           </span>
         </div>
 
-        {/* Section Heading */}
+        {/* Section Heading: Bricolage base + Redaction 100 punchline */}
         <h2
           className="text-3xl sm:text-5xl lg:text-6xl font-normal text-[#FAF8F5] tracking-tight leading-[1.1] mb-6"
           style={{ fontFamily: 'var(--font-heading)' }}
         >
-          Hackathon sprints &amp;{' '}
-          <span className="text-red-gold-gradient font-medium">team collaboration.</span>
+          Hackathons &amp; open source{' '}
+          <span className="font-redaction-100 italic font-normal text-transparent bg-clip-text bg-gradient-to-r from-[#FF2A00] to-[#F59E0B]">
+            sprints.
+          </span>
         </h2>
 
         <p className="text-[#E2DFD8] text-base sm:text-lg mb-10 font-normal leading-relaxed site-paragraph">
-          High-velocity engineering under deadline pressure. Compact cards expand to reveal architecture breakdowns and sprint metrics.
+          Fast builds under 24-hour constraints, Git branch merges, and public code reviews. Click to expand breakdowns.
         </p>
 
         {/* Minimalist Compact Expandable Cards */}
