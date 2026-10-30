@@ -84,14 +84,8 @@ export const App: React.FC = () => {
         {/* 01 / Background */}
         <About />
 
-        {/* Apple-style Blurred Transition: Gradient Section -> Shader Section */}
-        <BlurredTransition intensity="deep" />
-
         {/* 02 / Projects */}
         <Projects />
-
-        {/* Apple-style Blurred Transition: Shader Section -> Subsystems */}
-        <BlurredTransition intensity="medium" />
 
         {/* 03 / Subsystems */}
         <HorizontalShowcase />

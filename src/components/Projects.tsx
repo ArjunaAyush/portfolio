@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { PROJECTS_DATA, type SeniorProjectData } from '../data/projectsData';
 import { ProjectModal } from './ProjectModal';
-import { ShaderAnimation } from './ui/shader-animation';
 
 export const Projects: React.FC = () => {
   const [selectedProject, setSelectedProject] = useState<SeniorProjectData | null>(null);
@@ -17,16 +16,8 @@ export const Projects: React.FC = () => {
   return (
     <section
       id="projects"
-      className="relative w-full py-20 sm:py-28 px-5 sm:px-8 md:px-12 lg:px-16 overflow-hidden z-10 isolate"
+      className="relative w-full py-20 sm:py-28 px-5 sm:px-8 md:px-12 lg:px-16 overflow-hidden z-10"
     >
-      {/* Ambient Looping WebGL Shader Backdrop (Brilliantly Visible at z-0) */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0" aria-hidden="true">
-        <ShaderAnimation className="w-full h-full opacity-90" />
-        {/* Subtle Dark Vignette: Keeps Shader Lines Pulsing while Text Remains 100% Legible */}
-        <div className="absolute inset-0 bg-black/30 backdrop-blur-[1px]" />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#000000] via-transparent to-[#000000]" />
-      </div>
-
       <div className="site-container relative z-20">
         {/* Eyebrow Tag: Redaction 70 */}
         <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border border-[#FF2A00]/30 mb-6 backdrop-blur-xl bg-black/75 shadow-lg shadow-black/50">
