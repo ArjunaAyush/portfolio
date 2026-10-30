@@ -24,31 +24,14 @@ export const About: React.FC = () => {
           <span className="text-red-gold-gradient font-medium">craftsmanship &amp; care.</span>
         </h2>
 
-        {/* Narrative & Context (Optimal Reading Measure) */}
-        <div className="space-y-6 text-slate-300 text-base sm:text-lg leading-relaxed font-normal site-paragraph">
+        {/* Narrative & Context */}
+        <div className="space-y-4 text-slate-300 text-base sm:text-lg leading-relaxed font-normal site-paragraph max-w-3xl">
           <p>
-            I'm <strong className="text-white font-medium">Ayush Kumar</strong>,
-            known across GitHub and developer communities as{' '}
-            <strong className="text-rose-400 font-medium">ArjunaAyush</strong>. Currently
-            in my second year studying Information Technology at{' '}
-            <strong className="text-white font-medium">
-              Guru Ghasidas Vishwavidyalaya (GGV)
-            </strong>
-            , Bilaspur — a Central University established under the Central Universities Act.
+            I'm <strong className="text-white font-medium">Ayush Kumar</strong> (<strong className="text-rose-400 font-medium">@ArjunaAyush</strong>), an Information Technology undergraduate at <strong className="text-white font-medium">GGV Bilaspur</strong> specializing in native Android engineering.
           </p>
 
           <p>
-            My engineering work focuses on native Android development: crafting
-            modern user interfaces with <span className="text-rose-300 font-medium">Jetpack Compose</span>,
-            building reliable offline storage with{' '}
-            <span className="text-rose-300 font-medium">Room SQLite &amp; Kotlin Coroutines</span>, and engineering
-            responsive video playback using <span className="text-rose-300 font-medium">AndroidX Media3 (ExoPlayer)</span>.
-          </p>
-
-          <p>
-            Through projects like <span className="text-white font-medium">Looply</span>{' '}
-            and <span className="text-white font-medium">StatSync</span>, I prioritize
-            clean code structure, stable data flow, and smooth performance on physical devices.
+            My work focuses on building clean, offline-first mobile systems: declarative UI via <span className="text-rose-300 font-medium">Jetpack Compose</span>, responsive video streaming using <span className="text-rose-300 font-medium">AndroidX Media3</span>, and reliable local caching with <span className="text-rose-300 font-medium">Room SQLite</span> &amp; <span className="text-rose-300 font-medium">Kotlin Coroutines</span>.
           </p>
         </div>
 

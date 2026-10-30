@@ -71,15 +71,17 @@ export function ShaderAnimation({ className }: { className?: string } = {}) {
     const mesh = new THREE.Mesh(geometry, material)
     scene.add(mesh)
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true })
-    renderer.setPixelRatio(window.devicePixelRatio)
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true })
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25)
+    renderer.setPixelRatio(pixelRatio)
 
     container.appendChild(renderer.domElement)
 
     // Handle window resize
     const onWindowResize = () => {
-      const width = container.clientWidth
-      const height = container.clientHeight
+      if (!container) return
+      const width = container.clientWidth || window.innerWidth
+      const height = container.clientHeight || window.innerHeight
       renderer.setSize(width, height)
       uniforms.resolution.value.x = renderer.domElement.width
       uniforms.resolution.value.y = renderer.domElement.height
@@ -89,16 +91,36 @@ export function ShaderAnimation({ className }: { className?: string } = {}) {
     onWindowResize()
     window.addEventListener("resize", onWindowResize, false)
 
-    // Animation loop
+    let isVisible = true
+    let animationId = 0
+
+    // Animation loop - throttled to only execute when visible
     const animate = () => {
-      const animationId = requestAnimationFrame(animate)
-      uniforms.time.value += 0.05
+      if (!isVisible) return
+      animationId = requestAnimationFrame(animate)
+      uniforms.time.value += 0.04
       renderer.render(scene, camera)
 
       if (sceneRef.current) {
         sceneRef.current.animationId = animationId
       }
     }
+
+    // IntersectionObserver to pause rendering when section is not in viewport
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        const wasVisible = isVisible
+        isVisible = entry.isIntersecting
+        if (isVisible && !wasVisible) {
+          onWindowResize()
+          animate()
+        } else if (!isVisible && wasVisible) {
+          cancelAnimationFrame(animationId)
+        }
+      },
+      { threshold: 0.05 }
+    )
+    observer.observe(container)
 
     // Store scene references for cleanup
     sceneRef.current = {
@@ -109,13 +131,15 @@ export function ShaderAnimation({ className }: { className?: string } = {}) {
       animationId: 0,
     }
 
-    // Start animation
+    // Start animation if visible
     animate()
 
     // Cleanup function
     return () => {
       window.removeEventListener("resize", onWindowResize)
+      observer.disconnect()
 
+      cancelAnimationFrame(animationId)
       if (sceneRef.current) {
         cancelAnimationFrame(sceneRef.current.animationId)
 
@@ -135,7 +159,7 @@ export function ShaderAnimation({ className }: { className?: string } = {}) {
       ref={containerRef}
       className={className || "w-full h-full"}
       style={{
-        background: "#000",
+        background: "transparent",
         overflow: "hidden",
       }}
     />

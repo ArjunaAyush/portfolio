@@ -605,7 +605,7 @@ function createPerspectiveScene(
     options;
   let width = container.clientWidth;
   let height = container.clientHeight;
-  let pixelRatio = Math.min(window.devicePixelRatio, 2);
+  let pixelRatio = Math.min(window.devicePixelRatio || 1, 1.25);
 
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(backgroundColor);
@@ -879,12 +879,12 @@ function createPerspectiveScene(
 
 function PerspectiveCubes({
   className,
-  gridSize = 44,
+  gridSize,
   gap = 0.08,
-  baseColor = "#2a2a30",
-  waveColor = "#ff6a2b",
-  backgroundColor = "#0b0b0d",
-  glow = 0.9,
+  baseColor = "#081638",
+  waveColor = "#ff2a00",
+  backgroundColor = "#060913",
+  glow = 0.85,
   amplitude = 0.5,
   tilt = 0.7,
   idleRipples = true,
@@ -892,13 +892,30 @@ function PerspectiveCubes({
   const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const updateRef = useRef<((delta: number) => void) | null>(null);
+  const isVisibleRef = useRef<boolean>(true);
   const reduceMotion = useReducedMotion();
   const idle = idleRipples && !reduceMotion;
+
+  // Responsive grid size: 24 on mobile (<768px) for maximum performance, 44 on desktop
+  const computedGridSize = gridSize ?? (typeof window !== "undefined" && window.innerWidth < 768 ? 24 : 44);
+
+  // Pause rendering when scrolled out of view to ensure zero frame drops
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     if (!canvasRef.current || !containerRef.current) return;
     const { update, dispose } = createPerspectiveScene(canvasRef.current, containerRef.current, {
-      gridSize,
+      gridSize: computedGridSize,
       gap,
       baseColor,
       waveColor,
@@ -913,10 +930,12 @@ function PerspectiveCubes({
       updateRef.current = null;
       dispose();
     };
-  }, [gridSize, gap, baseColor, waveColor, backgroundColor, glow, amplitude, tilt, idle]);
+  }, [computedGridSize, gap, baseColor, waveColor, backgroundColor, glow, amplitude, tilt, idle]);
 
   useAnimationFrame((_, delta) => {
-    updateRef.current?.(Math.min(delta / 1000, 0.1));
+    if (isVisibleRef.current) {
+      updateRef.current?.(Math.min(delta / 1000, 0.1));
+    }
   });
 
   return (

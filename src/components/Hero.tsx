@@ -1,36 +1,49 @@
 import React, { useState } from 'react';
+import { BackgroundCubesGrid } from './ui/background-cubes-grid';
 import { AnimatedTooltip } from './ui/animated-tooltip';
 
-const COLLABORATORS = [
+const TECH_STACK_ITEMS = [
   {
     id: 1,
-    name: 'Ayush Kumar',
-    designation: 'Native Android Developer',
-    image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=400&q=80',
+    name: 'Kotlin',
+    designation: 'Modern Language & Coroutines (v2.1)',
+    image:
+      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%237F52FF" d="M24 24H0V0h24L12 12Z"/></svg>',
   },
   {
     id: 2,
-    name: 'Aman Sharma',
-    designation: 'Coroutines & Systems Peer',
-    image: 'https://images.unsplash.com/photo-1599566150163-29194dcaad36?auto=format&fit=crop&w=400&q=80',
+    name: 'Jetpack Compose',
+    designation: 'Declarative Reactive UI & M3 Tokens',
+    image:
+      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%234285F4" d="M12 2L2 7l10 5 10-5-10-5Z"/><path fill="%2334A853" d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg>',
   },
   {
     id: 3,
-    name: 'Priya Patel',
-    designation: 'Design Systems & UI Contributor',
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+    name: 'Android SDK',
+    designation: 'Native APIs & WorkManager',
+    image:
+      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%233DDC84" d="M17.5 12a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm-11 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2Zm12.6-4.8 1.9-3.3a.6.6 0 0 0-.2-.8.6.6 0 0 0-.8.2l-2 3.4A12.7 12.7 0 0 0 12 6c-2.2 0-4.2.6-5.9 1.5L4 4.1a.6.6 0 0 0-.8-.2.6.6 0 0 0-.2.8L5 8A10.7 10.7 0 0 0 1 16h22a10.7 10.7 0 0 0-3.9-8.8Z"/></svg>',
   },
   {
     id: 4,
-    name: 'Rohan Verma',
-    designation: 'Open Source Collaborator',
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=400&q=80',
+    name: 'AndroidX Media3',
+    designation: 'ExoPlayer & Zero-Buffer Looping',
+    image:
+      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23F43F5E" d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm-2 14.5v-9l7 4.5-7 4.5Z"/></svg>',
   },
   {
     id: 5,
-    name: 'Siddharth Rao',
-    designation: 'Kotlin & Architecture Peer',
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=400&q=80',
+    name: 'Room SQLite',
+    designation: 'Local-First Resilient Persistence',
+    image:
+      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23003B57" d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3v12c0 1.7-3.6 3-8 3s-8-1.3-8-3V6Z"/><path fill="%2300A3E0" d="M20 10c0 1.7-3.6 3-8 3s-8-1.3-8-3M20 14c0 1.7-3.6 3-8 3s-8-1.3-8-3"/></svg>',
+  },
+  {
+    id: 6,
+    name: 'Coroutines & Flow',
+    designation: 'Structured Concurrency & StateFlow',
+    image:
+      'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path fill="%23F59E0B" d="M13 2L3 14h9l-1 8 10-12h-9l1-8Z"/></svg>',
   },
 ];
 
@@ -74,9 +87,29 @@ export const Hero: React.FC = () => {
   return (
     <section
       id="hero"
-      className="relative w-full min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-center px-5 sm:px-8 md:px-12 lg:px-16 pt-24 pb-12 sm:pt-28 sm:pb-16 overflow-hidden z-[5]"
+      className="relative w-full min-h-[85vh] sm:min-h-[90vh] flex flex-col justify-center px-5 sm:px-8 md:px-12 lg:px-16 pt-24 pb-16 sm:pt-28 sm:pb-20 overflow-hidden"
     >
-      <div className="site-container relative z-10 max-w-2xl">
+      {/* 3D Perspective Cubes Grid (Hero Section Floor, Deep Navy Secondary Color) */}
+      <div className="absolute inset-0 -z-10 pointer-events-none select-none overflow-hidden" aria-hidden="true">
+        <BackgroundCubesGrid
+          variant="perspective"
+          backgroundColor="#060913"
+          baseColor="#081638"
+          waveColor="#ff2a00"
+          glow={0.85}
+          amplitude={0.35}
+          tilt={0.65}
+          idleRipples={true}
+          className="w-full h-full"
+        />
+        {/* Ambient radial blend to keep foreground text ultra-sharp */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_60%_at_45%_50%,rgba(6,9,19,0.2),#060913_90%)]"
+        />
+      </div>
+
+      <div className="site-container relative z-30 max-w-2xl">
         {/* Eyebrow Badge (Royal Red Accent) */}
         <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full glass-pill border border-rose-500/25 mb-6 backdrop-blur-xl bg-[#0b1329]/80 shadow-lg shadow-black/40">
           <span className="w-2 h-2 rounded-full bg-rose-500 shadow-[0_0_8px_rgba(244,63,94,0.9)] animate-pulse" />
@@ -95,13 +128,12 @@ export const Hero: React.FC = () => {
         </h1>
 
         {/* Narrative / Focus */}
-        <p className="text-slate-300 text-base sm:text-xl leading-relaxed font-normal mb-10 max-w-xl site-paragraph">
-          Hi, I'm <strong className="text-white font-medium">Ayush Kumar</strong> (known online as{' '}
-          <strong className="text-rose-400 font-medium">ArjunaAyush</strong>). Building native Android apps with Kotlin, Jetpack Compose, Room SQLite, and AndroidX Media3.
+        <p className="text-slate-300 text-base sm:text-xl leading-relaxed font-normal mb-9 max-w-xl site-paragraph">
+          Hi, I'm <strong className="text-white font-medium">Ayush Kumar</strong> (<strong className="text-rose-400 font-medium">@ArjunaAyush</strong>). Building responsive, local-first Android apps with Kotlin, Jetpack Compose, Room SQLite, and AndroidX Media3.
         </p>
 
         {/* Action CTAs Stack */}
-        <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+        <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-9">
           {/* Primary Action (Royal Red Accent) */}
           <button
             type="button"
@@ -151,24 +183,27 @@ export const Hero: React.FC = () => {
               <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
               <polyline points="22,6 12,13 2,6" />
             </svg>
-            <span>{copied ? 'Copied to Clipboard! ✓' : 'ayushkumar134go@gmail.com'}</span>
+            <span>{copied ? 'Copied! ✓' : 'ayushkumar134go@gmail.com'}</span>
           </button>
         </div>
 
-        {/* Collaborative Social Proof with Animated Tooltip */}
-        <div className="mt-9 pt-6 border-t border-rose-500/15 flex flex-wrap items-center gap-4">
+        {/* Core Tech Stack with Animated Tooltips */}
+        <div className="pt-6 border-t border-rose-500/15 flex flex-wrap items-center gap-4">
           <div className="flex items-center pl-2">
-            <AnimatedTooltip items={COLLABORATORS} />
+            <AnimatedTooltip items={TECH_STACK_ITEMS} />
           </div>
           <div className="text-xs text-slate-300">
             <p className="font-medium text-white flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              Active in Open Source &amp; Hackathons
+              <span className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse" />
+              Production Android Stack
             </p>
-            <p className="text-[11px] text-slate-400">Collaborating with university peers &amp; Android engineers</p>
+            <p className="text-[11px] text-slate-400">Kotlin · Jetpack Compose · Media3 · Room SQLite</p>
           </div>
         </div>
       </div>
+
+      {/* Clean Horizontal Separation Line at the bottom of Hero */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-rose-500/35 via-amber-400/20 to-transparent pointer-events-none" />
     </section>
   );
 };

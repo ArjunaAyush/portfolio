@@ -11,20 +11,30 @@ import { Hackathons } from './components/Hackathons';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { ProjectModal } from './components/ProjectModal';
+import { NotFound } from './components/NotFound';
 import { type SeniorProjectData } from './data/projectsData';
 
 export const App: React.FC = () => {
   const [modalProject, setModalProject] = useState<SeniorProjectData | null>(null);
+  const [currentPath, setCurrentPath] = useState(() =>
+    typeof window !== 'undefined' ? window.location.pathname : '/'
+  );
 
-  // Initialize Lenis smooth scroll with forced smoothing parameters
+  // Client-side route listener for custom 404 support
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Initialize Lenis smooth scroll with clean natural physics (no laggy drag or wheel fight)
   useEffect(() => {
     const lenis = new Lenis({
-      duration: 1.4,
+      duration: 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      wheelMultiplier: 0.95,
-      touchMultiplier: 1.2,
-      infinite: false,
     });
 
     let rafId: number;
@@ -34,49 +44,36 @@ export const App: React.FC = () => {
     }
     rafId = requestAnimationFrame(raf);
 
-    // Make lenis available on window for scroll triggers
+    // Make lenis globally available for smooth anchor triggers
     (window as unknown as { __lenis?: Lenis }).__lenis = lenis;
-
-    // Intercept in-page anchor clicks to enforce smooth Lenis inertia everywhere
-    const handleAnchorClick = (e: MouseEvent) => {
-      const target = (e.target as HTMLElement).closest('a');
-      if (!target) return;
-      const href = target.getAttribute('href');
-      if (href && href.startsWith('#') && href.length > 1) {
-        const el = document.querySelector(href);
-        if (el) {
-          e.preventDefault();
-          lenis.scrollTo(href, {
-            offset: -40,
-            duration: 1.4,
-            easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-          });
-        }
-      }
-    };
-    document.addEventListener('click', handleAnchorClick);
 
     return () => {
       cancelAnimationFrame(rafId);
-      document.removeEventListener('click', handleAnchorClick);
       lenis.destroy();
     };
   }, []);
 
+  // Check if current route should display custom 404 page
+  const is404 = currentPath !== '/' && currentPath !== '' && currentPath !== '/index.html';
+
+  if (is404) {
+    return <NotFound onNavigateHome={() => setCurrentPath('/')} />;
+  }
+
   return (
     <div className="relative w-full min-h-screen bg-[#060913] text-slate-100 selection:bg-rose-500 selection:text-white font-sans">
       {/* 
-        Scroll-responsive 3D animated character layer (fixed, z-index: 0):
-        Big in Hero without overlapping text.
-        By the time the user reaches Section 02 (#projects), it has smoothly resized to its final small size.
+        Scroll-responsive 3D animated character layer (fixed, z-index: 20):
+        Desktop: smooth head-turn with scroll-linked docking.
+        Mobile: completely static neutral frame at original size.
       */}
       <BackgroundVideo />
 
-      {/* Floating Glassomorphic Pill Navbar (z-index: 30) */}
+      {/* Floating Glassomorphic Pill Navbar (z-index: 40) */}
       <Navbar />
 
-      {/* Main Content Sections (z-index: 10) */}
-      <main className="relative z-10 flex flex-col">
+      {/* Main Content Sections */}
+      <main className="relative flex flex-col">
         {/* Hero Section */}
         <Hero />
 
